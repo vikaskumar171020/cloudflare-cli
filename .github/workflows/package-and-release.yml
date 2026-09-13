@@ -2,11 +2,8 @@ name: Package and Release (DMG & Packages)
 
 on:
   push:
-    branches: [ main ]
     tags:
       - 'v*'
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
       tag_name:

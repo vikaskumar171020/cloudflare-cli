@@ -384,7 +384,7 @@ npm run package
 # - cloudflare-cli-0.1.0.tgz (NPM package)
 ```
 
-**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds these artifacts on every push to `main` and attaches them to GitHub Releases.
+**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds these artifacts when a Git release tag is pushed (`v*`) or via manual 1-Click trigger (`workflow_dispatch`).
 
 ---
 
