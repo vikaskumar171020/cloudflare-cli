@@ -216,33 +216,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to GitHub Container Registry (ghcr.io)
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and Push Docker Image to GitHub Packages (GHCR)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          target: runner
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.version.outputs.release_tag }}
-            ghcr.io/${{ github.repository }}:latest
-
       - name: Summary
         run: |
-          echo "## 🚀 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
-          echo "Your release is now live across GitHub Releases and GitHub Packages:" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Published Successfully to GitHub!" >> $GITHUB_STEP_SUMMARY
+          echo "Your release is now live and visible on GitHub:" >> $GITHUB_STEP_SUMMARY
           echo "- **Auto-Bumped Tag**: \`${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.release_tag }})" >> $GITHUB_STEP_SUMMARY
-          echo "- **macOS DMG**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-macos.dmg\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Standalone Bundle**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-package.tar.gz\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **macOS DMG Installer**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-macos.dmg\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Standalone Package**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-package.tar.gz\`" >> $GITHUB_STEP_SUMMARY
           echo "- **GitHub Packages (NPM)**: \`@${{ github.repository_owner }}/cloudflare-cli\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **GitHub Packages (Docker)**: \`ghcr.io/${{ github.repository }}:${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY

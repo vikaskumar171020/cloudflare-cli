@@ -370,11 +370,12 @@ cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="
 
 ---
 
-## 📦 Packaging, Releases & GitHub Packages
+## 📦 Installation & Releases (GitHub Releases & GitHub Packages)
 
-Every release of `cloudflare-cli` is published across GitHub Releases and GitHub Packages:
+Every release of `cloudflare-cli` is published directly to GitHub:
 
-### 1. Install via GitHub Packages (npm)
+### 1. Install via GitHub Packages (NPM)
+Install the CLI directly from the GitHub Packages npm registry:
 ```bash
 # Install globally via GitHub Packages registry
 npm install -g @vikaskumartank/cloudflare-cli --registry=https://npm.pkg.github.com
@@ -384,20 +385,11 @@ cloudflare-cli --help
 cf-cli user:display
 ```
 
-### 2. Run via GitHub Container Registry (Docker)
-```bash
-# Pull and execute directly from GitHub Container Registry
-docker run --rm -it \
-  -e CLOUDFLARE_API_TOKEN="your_token_here" \
-  ghcr.io/vikaskumartank/cloudflare-cli:latest user:display
-
-# Or test in offline mock mode
-docker run --rm -it ghcr.io/vikaskumartank/cloudflare-cli:latest --local user:display
-```
-
-### 3. Native macOS DMG & Standalone Tarball (GitHub Releases)
-- **macOS Installer (`.dmg`)**: Download from the repository's **Releases** tab.
-- **Standalone Tarball (`.tar.gz`)**: Download, extract, and run with `./install.sh`.
+### 2. Download from GitHub Releases
+Pre-compiled distributions are published under the repository's **Releases** tab:
+- **macOS Installer (`.dmg`)**: Open the DMG and run `./install.sh` for 1-click global terminal setup.
+- **Standalone Tarball (`.tar.gz`)**: Extract and run with bundled dependencies on macOS or Linux.
+- **NPM Package Tarball (`.tgz`)**: Offline installable via `npm install -g <filename>.tgz`.
 
 ```bash
 # Generate artifacts locally
@@ -409,7 +401,7 @@ npm run package
 # - vikaskumartank-cloudflare-cli-0.1.0.tgz (NPM package)
 ```
 
-**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes DMG, Standalone Tarball, GitHub Packages NPM registry, and Docker GHCR container image when a tag is pushed or triggered manually.
+**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes the DMG, Standalone Tarball, and GitHub Packages (NPM) when a tag is pushed or triggered manually.
 
 ---
 
