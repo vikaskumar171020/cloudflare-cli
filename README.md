@@ -370,21 +370,46 @@ cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="
 
 ---
 
-## 📦 Packaging & macOS DMG Installer
+## 📦 Packaging, Releases & GitHub Packages
 
-You can package `cloudflare-cli` into a native macOS DMG disk image, standalone tarball, and npm distribution package:
+Every release of `cloudflare-cli` is published across GitHub Releases and GitHub Packages:
+
+### 1. Install via GitHub Packages (npm)
+```bash
+# Install globally via GitHub Packages registry
+npm install -g @vikaskumartank/cloudflare-cli --registry=https://npm.pkg.github.com
+
+# Run anywhere
+cloudflare-cli --help
+cf-cli user:display
+```
+
+### 2. Run via GitHub Container Registry (Docker)
+```bash
+# Pull and execute directly from GitHub Container Registry
+docker run --rm -it \
+  -e CLOUDFLARE_API_TOKEN="your_token_here" \
+  ghcr.io/vikaskumartank/cloudflare-cli:latest user:display
+
+# Or test in offline mock mode
+docker run --rm -it ghcr.io/vikaskumartank/cloudflare-cli:latest --local user:display
+```
+
+### 3. Native macOS DMG & Standalone Tarball (GitHub Releases)
+- **macOS Installer (`.dmg`)**: Download from the repository's **Releases** tab.
+- **Standalone Tarball (`.tar.gz`)**: Download, extract, and run with `./install.sh`.
 
 ```bash
-# Generate DMG image and standalone distribution package
+# Generate artifacts locally
 npm run package
 
 # Artifacts created in build_artifacts/:
 # - cloudflare-cli-v0.1.0-macos.dmg (macOS Installer DMG)
 # - cloudflare-cli-v0.1.0-package.tar.gz (Standalone package)
-# - cloudflare-cli-0.1.0.tgz (NPM package)
+# - vikaskumartank-cloudflare-cli-0.1.0.tgz (NPM package)
 ```
 
-**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds these artifacts when a Git release tag is pushed (`v*`) or via manual 1-Click trigger (`workflow_dispatch`).
+**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes DMG, Standalone Tarball, GitHub Packages NPM registry, and Docker GHCR container image when a tag is pushed or triggered manually.
 
 ---
 
