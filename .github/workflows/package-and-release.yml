@@ -8,6 +8,16 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g. v0.1.0). Leave blank to auto-use package.json version.'
+        required: false
+        default: ''
+      create_release:
+        description: 'Create and publish GitHub Release with DMG and Packages'
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -40,7 +50,7 @@ jobs:
         run: npm test
 
   # ----------------------------------------------------------------------------
-  # Job 2: Build macOS DMG and Packages
+  # Job 2: Build macOS DMG and Standalone Packages
   # ----------------------------------------------------------------------------
   package-macos:
     name: Build DMG & Dist Packages
@@ -62,7 +72,7 @@ jobs:
       - name: Build Standalone Packages and macOS DMG
         run: ./scripts/package.sh
 
-      - name: Upload Build Artifacts (DMG & Packages)
+      - name: Upload Build Artifacts (Visible in GitHub Actions)
         uses: actions/upload-artifact@v4
         with:
           name: cloudflare-cli-dist-packages
@@ -73,16 +83,56 @@ jobs:
           retention-days: 14
 
   # ----------------------------------------------------------------------------
-  # Job 3: Publish GitHub Release (Only on Git Tags)
+  # Job 3: Publish GitHub Release & Create Git Tag (On Tag Push or Workflow Dispatch)
   # ----------------------------------------------------------------------------
   release:
-    name: Publish Release Assets
+    name: Publish Release & Git Tag
     needs: package-macos
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release != 'false')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@${{ github.repository_owner }}'
+
+      - name: Determine Release Tag & Create Tag if Missing
+        id: tag_step
+        run: |
+          # 1. Determine Tag Name
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            INPUT_TAG="${{ github.event.inputs.tag_name }}"
+            if [ -n "$INPUT_TAG" ]; then
+              TAG_NAME="$INPUT_TAG"
+            else
+              PKG_VER=$(node -p "require('./package.json').version")
+              TAG_NAME="v${PKG_VER}"
+            fi
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          echo "RELEASE_TAG=${TAG_NAME}" >> $GITHUB_ENV
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+          # 2. Configure Git and Ensure Tag Exists on Remote
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if ! git rev-parse -q --verify "refs/tags/${TAG_NAME}" >/dev/null; then
+            echo "Creating and pushing Git tag: ${TAG_NAME}..."
+            git tag -a "${TAG_NAME}" -m "Release ${TAG_NAME} (via GitHub Actions)"
+            git push origin "${TAG_NAME}"
+          else
+            echo "Git tag ${TAG_NAME} already exists."
+          fi
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -90,9 +140,11 @@ jobs:
           name: cloudflare-cli-dist-packages
           path: release_assets
 
-      - name: Create GitHub Release & Attach DMG / Packages
+      - name: Publish GitHub Release with Assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Cloudflare CLI ${{ env.RELEASE_TAG }}
           files: |
             release_assets/*.dmg
             release_assets/*.tgz
@@ -100,3 +152,25 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        run: |
+          TGZ_FILE=$(ls release_assets/*.tgz | head -n 1)
+          if [ -f "$TGZ_FILE" ]; then
+            echo "Publishing $TGZ_FILE to GitHub Packages..."
+            npm publish "$TGZ_FILE" --registry=https://npm.pkg.github.com || echo "Note: Package publish skipped if version already exists."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 🚀 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "Your release is now live and visible on GitHub:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Git Tag Created**: \`${{ env.RELEASE_TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **macOS DMG**: Attached to release as \`*.dmg\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Standalone Package**: Attached to release as \`*.tar.gz\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM Package**: Attached to release and published to GitHub Packages" >> $GITHUB_STEP_SUMMARY

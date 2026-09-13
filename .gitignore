@@ -16,6 +16,8 @@ build_artifacts/
 *.pem
 *.key
 cf-config.json
+RELEASE_AND_PACKAGING_LOCAL.md
+*_LOCAL.md
 
 # Logs & temp files
 npm-debug.log*
