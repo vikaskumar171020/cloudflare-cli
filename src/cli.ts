@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { createRequire } from 'node:module';
 import { registerHelpCommand } from './commands/help/index.js';
 import { registerAuthCommands } from './commands/auth/index.js';
 import { registerZonesCommands } from './commands/zones/index.js';
@@ -11,13 +12,22 @@ import { ConfigManager } from './utils/config.js';
 import { Logger } from './utils/logger.js';
 import type { OutputFormat } from './types/index.js';
 
+const require = createRequire(import.meta.url);
+let pkgVersion = '0.1.0';
+try {
+  const pkg = require('../package.json');
+  pkgVersion = pkg.version || '0.1.0';
+} catch {
+  // Fallback if package.json path differs in bundle
+}
+
 export function createCli(): Command {
   const program = new Command();
 
   program
     .name('cloudflare-cli')
     .description('Modern CLI tool for managing Cloudflare services and infrastructure')
-    .version('0.1.0')
+    .version(pkgVersion)
     .option('-t, --token <token>', 'Cloudflare API Token')
     .option('-a, --account <accountId>', 'Cloudflare Account ID')
     .option('-z, --zone <zoneId>', 'Cloudflare Zone ID')

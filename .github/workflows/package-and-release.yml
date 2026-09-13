@@ -6,15 +6,20 @@ on:
       - 'v*'
   workflow_dispatch:
     inputs:
-      tag_name:
-        description: 'Release tag (e.g. v0.1.0). Leave blank to auto-use package.json version.'
+      bump_type:
+        description: 'Auto-bump version type'
+        required: true
+        type: choice
+        default: 'patch'
+        options:
+          - patch
+          - minor
+          - major
+          - none
+      custom_tag:
+        description: 'Custom tag/version (e.g. v0.2.0). Overrides bump_type if provided.'
         required: false
         default: ''
-      create_release:
-        description: 'Create and publish GitHub Release with DMG and Packages'
-        required: true
-        type: boolean
-        default: true
 
 permissions:
   contents: write
@@ -22,14 +27,93 @@ permissions:
 
 jobs:
   # ----------------------------------------------------------------------------
-  # Job 1: Lint & Automated Tests
+  # Job 1: Automated Versioning & Git Tagging
+  # ----------------------------------------------------------------------------
+  version:
+    name: Auto-Bump Version & Tag
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.bump.outputs.release_tag }}
+      version: ${{ steps.bump.outputs.version }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Bump Version & Sync Git
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CUSTOM_TAG="${{ github.event.inputs.custom_tag }}"
+            BUMP_TYPE="${{ github.event.inputs.bump_type }}"
+
+            if [ -n "$CUSTOM_TAG" ]; then
+              # Strip leading 'v' if present for npm version
+              CLEAN_VER="${CUSTOM_TAG#v}"
+              npm version "$CLEAN_VER" --no-git-tag-version --allow-same-version
+              NEW_TAG="v${CLEAN_VER}"
+            elif [ "$BUMP_TYPE" != "none" ]; then
+              npm version "$BUMP_TYPE" --no-git-tag-version
+              PKG_VER=$(node -p "require('./package.json').version")
+              NEW_TAG="v${PKG_VER}"
+            else
+              PKG_VER=$(node -p "require('./package.json').version")
+              NEW_TAG="v${PKG_VER}"
+            fi
+
+            # Commit updated package.json & package-lock.json back to main branch
+            if ! git diff --quiet package.json; then
+              git add package.json package-lock.json
+              git commit -m "chore(release): bump version to ${NEW_TAG} [skip ci]"
+              git push origin HEAD:${{ github.ref_name || 'main' }}
+            fi
+
+            # Create Git tag if not present
+            if ! git rev-parse -q --verify "refs/tags/${NEW_TAG}" >/dev/null; then
+              git tag -a "${NEW_TAG}" -m "Release ${NEW_TAG} (auto-bumped)"
+              git push origin "${NEW_TAG}"
+            fi
+          else
+            # Triggered via push of a tag (e.g. v0.2.0)
+            NEW_TAG="${GITHUB_REF_NAME}"
+            CLEAN_VER="${NEW_TAG#v}"
+            
+            # Sync package.json if it doesn't match tag
+            PKG_VER=$(node -p "require('./package.json').version")
+            if [ "$PKG_VER" != "$CLEAN_VER" ]; then
+              npm version "$CLEAN_VER" --no-git-tag-version
+              git add package.json package-lock.json
+              git commit -m "chore(release): sync package version to ${NEW_TAG} [skip ci]"
+              git push origin HEAD:main || true
+            fi
+          fi
+
+          echo "release_tag=${NEW_TAG}" >> $GITHUB_OUTPUT
+          echo "version=${NEW_TAG#v}" >> $GITHUB_OUTPUT
+          echo "Target Release Tag: ${NEW_TAG}"
+
+  # ----------------------------------------------------------------------------
+  # Job 2: Lint & Automated Tests
   # ----------------------------------------------------------------------------
   test:
     name: Lint & Unit Tests
+    needs: version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.release_tag }}
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -47,15 +131,17 @@ jobs:
         run: npm test
 
   # ----------------------------------------------------------------------------
-  # Job 2: Build macOS DMG and Standalone Packages
+  # Job 3: Build macOS DMG and Standalone Packages
   # ----------------------------------------------------------------------------
   package-macos:
     name: Build DMG & Dist Packages
-    needs: test
+    needs: [version, test]
     runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.release_tag }}
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -80,18 +166,17 @@ jobs:
           retention-days: 14
 
   # ----------------------------------------------------------------------------
-  # Job 3: Publish GitHub Release & Create Git Tag (On Tag Push or Workflow Dispatch)
+  # Job 4: Publish GitHub Release & Packages
   # ----------------------------------------------------------------------------
   release:
-    name: Publish Release & Git Tag
-    needs: package-macos
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release != 'false')
+    name: Publish Release to GitHub
+    needs: [version, package-macos]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ needs.version.outputs.release_tag }}
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -99,37 +184,6 @@ jobs:
           node-version: 22
           registry-url: 'https://npm.pkg.github.com'
           scope: '@${{ github.repository_owner }}'
-
-      - name: Determine Release Tag & Create Tag if Missing
-        id: tag_step
-        run: |
-          # 1. Determine Tag Name
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            INPUT_TAG="${{ github.event.inputs.tag_name }}"
-            if [ -n "$INPUT_TAG" ]; then
-              TAG_NAME="$INPUT_TAG"
-            else
-              PKG_VER=$(node -p "require('./package.json').version")
-              TAG_NAME="v${PKG_VER}"
-            fi
-          else
-            TAG_NAME="${GITHUB_REF_NAME}"
-          fi
-
-          echo "RELEASE_TAG=${TAG_NAME}" >> $GITHUB_ENV
-          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
-
-          # 2. Configure Git and Ensure Tag Exists on Remote
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if ! git rev-parse -q --verify "refs/tags/${TAG_NAME}" >/dev/null; then
-            echo "Creating and pushing Git tag: ${TAG_NAME}..."
-            git tag -a "${TAG_NAME}" -m "Release ${TAG_NAME} (via GitHub Actions)"
-            git push origin "${TAG_NAME}"
-          else
-            echo "Git tag ${TAG_NAME} already exists."
-          fi
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -140,8 +194,8 @@ jobs:
       - name: Publish GitHub Release with Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          name: Cloudflare CLI ${{ env.RELEASE_TAG }}
+          tag_name: ${{ needs.version.outputs.release_tag }}
+          name: Cloudflare CLI ${{ needs.version.outputs.release_tag }}
           files: |
             release_assets/*.dmg
             release_assets/*.tgz
@@ -166,8 +220,8 @@ jobs:
         run: |
           echo "## 🚀 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "Your release is now live and visible on GitHub:" >> $GITHUB_STEP_SUMMARY
-          echo "- **Git Tag Created**: \`${{ env.RELEASE_TAG }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Auto-Bumped Tag**: \`${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.release_tag }})" >> $GITHUB_STEP_SUMMARY
           echo "- **macOS DMG**: Attached to release as \`*.dmg\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Standalone Package**: Attached to release as \`*.tar.gz\`" >> $GITHUB_STEP_SUMMARY
           echo "- **NPM Package**: Attached to release and published to GitHub Packages" >> $GITHUB_STEP_SUMMARY
