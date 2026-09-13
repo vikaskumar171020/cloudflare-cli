@@ -1,6 +1,6 @@
 {
-  "name": "@vikaskumartank/cloudflare-cli",
-  "version": "0.1.0",
+  "name": "cloudflare-cli",
+  "version": "0.2.0",
   "description": "Powerful, modern command-line interface for managing Cloudflare resources (DNS, Zones, Workers, KV, R2, Cache, and Security).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
