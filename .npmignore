@@ -1,0 +1,30 @@
+# Source and test files
+src/
+test/
+tsconfig.json
+vitest.config.ts
+
+# Documentation and agentic assets
+.agents/
+docs/
+*.md
+!README.md
+!DEVELOPER_GUIDE.md
+!DOCKER.md
+!LICENSE
+
+# Packaging & Build artifacts
+build_artifacts/
+*.dmg
+*.tar.gz
+scripts/
+
+# Docker and CI
+.github/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files
+.env*
+cf-config.json

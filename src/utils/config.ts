@@ -10,6 +10,10 @@ const envSchema = z.object({
   CLOUDFLARE_ACCOUNT_ID: z.string().optional(),
   CLOUDFLARE_ZONE_ID: z.string().optional(),
   CLOUDFLARE_CLI_OUTPUT_FORMAT: z.enum(['table', 'json', 'yaml', 'csv']).default('table'),
+  CLOUDFLARE_LOCAL_MODE: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true' || val === '1'),
 });
 
 export class ConfigManager {
@@ -24,6 +28,7 @@ export class ConfigManager {
       zoneId: overrides?.zoneId || env.CLOUDFLARE_ZONE_ID,
       outputFormat: (overrides?.outputFormat || env.CLOUDFLARE_CLI_OUTPUT_FORMAT) as OutputFormat,
       verbose: overrides?.verbose ?? false,
+      localMode: overrides?.localMode ?? env.CLOUDFLARE_LOCAL_MODE ?? false,
     };
 
     return this.config;
@@ -38,9 +43,12 @@ export class ConfigManager {
 
   public static requireApiToken(): string {
     const config = this.getConfig();
+    if (config.localMode) {
+      return config.apiToken || 'mock-local-token';
+    }
     if (!config.apiToken) {
       throw new Error(
-        'Missing Cloudflare API Token. Please provide it via --token flag or set CLOUDFLARE_API_TOKEN in your environment.'
+        'Missing Cloudflare API Token. Please provide it via --token flag, set CLOUDFLARE_API_TOKEN in your environment, or run with --local for offline mode.'
       );
     }
     return config.apiToken;

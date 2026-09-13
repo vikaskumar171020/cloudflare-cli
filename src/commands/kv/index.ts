@@ -1,15 +1,35 @@
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { getCloudflareClient } from '../../lib/cloudflare-client.js';
 import { Logger } from '../../utils/logger.js';
 import { ConfigManager } from '../../utils/config.js';
 
 export function registerKvCommands(program: Command) {
-  const kv = program.command('kv').description('Manage Cloudflare Workers KV namespaces and keys');
+  const kv = program
+    .command('kv')
+    .description('Manage Cloudflare Workers KV namespaces and keys')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cloudflare-cli kv list --local -a mock-acc-001
+`
+    );
 
   kv
     .command('list')
     .description('List all KV namespaces in the account')
     .option('-a, --account <accountId>', 'Account ID (or set CLOUDFLARE_ACCOUNT_ID)')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cloudflare-cli kv list -a 1a2b3c4d -o json
+  $ cloudflare-cli kv list --local -a mock-acc-001
+`
+    )
     .action(async (options) => {
       const config = ConfigManager.getConfig();
       const accountId = options.account || config.accountId;

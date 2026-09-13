@@ -21,6 +21,11 @@ docs/
     └── rfc-001-modular-command-structure.md
 ```
 
+## Guides & Resources
+- **[Developer & Testing Guide](../DEVELOPER_GUIDE.md)**: End-to-end installation, testing directly from source code, and Docker workflows.
+- **[Docker Guide](../DOCKER.md)**: Complete Docker commands, container architecture, and offline local mode.
+- **[Master Roadmap](plans/00-master-roadmap.md)**: Complete development milestones.
+
 ## How to Use
 - **Planning New Features**: Copy `docs/plans/template-plan.md` to a new plan in `docs/plans/`.
 - **Conducting Spikes / Research**: Use `docs/research/template-research.md` to document findings before implementation.

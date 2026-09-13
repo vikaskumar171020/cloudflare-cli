@@ -1,14 +1,35 @@
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { getCloudflareClient } from '../../lib/cloudflare-client.js';
 import { Logger } from '../../utils/logger.js';
 import { ConfigManager } from '../../utils/config.js';
 
 export function registerAuthCommands(program: Command) {
-  const auth = program.command('auth').description('Authentication and token management commands');
+  const auth = program
+    .command('auth')
+    .description('Authentication and token management commands')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli auth verify
+  $ cloudflare-cli auth verify --token <custom_token>
+  $ cloudflare-cli auth verify --local
+`
+    );
 
   auth
     .command('verify')
     .description('Verify that the configured Cloudflare API token is valid')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli auth verify
+  $ cloudflare-cli auth verify --token my-secret-token
+  $ cloudflare-cli auth verify -o json
+`
+    )
     .action(async () => {
       const spinner = Logger.spinner('Verifying Cloudflare API Token...');
       try {
@@ -35,8 +56,18 @@ export function registerAuthCommands(program: Command) {
     });
 
   program
-    .command('whoami')
+    .command('user:display')
+    .alias('whoami')
     .description('Display user account details associated with the current credentials')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli user:display
+  $ cloudflare-cli user:display --output json
+  $ cloudflare-cli user:display --local
+`
+    )
     .action(async () => {
       const spinner = Logger.spinner('Fetching user details...');
       try {

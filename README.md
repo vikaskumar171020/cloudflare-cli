@@ -11,7 +11,7 @@ A modern, fast, and feature-complete Command-Line Interface for managing Cloudfl
   - [Output Formatting Engine](#output-formatting-engine)
 - [Global Options & Flags](#global-options--flags)
 - [Command Reference](#command-reference)
-  - [1. Authentication (`auth`, `whoami`)](#1-authentication-auth-whoami)
+  - [1. Authentication & Identity (`auth`, `user:display`)](#1-authentication--identity-auth-userdisplay)
   - [2. Zones Management (`zones`)](#2-zones-management-zones)
   - [3. DNS Management (`dns`)](#3-dns-management-dns)
   - [4. Cloudflare Workers (`workers`)](#4-cloudflare-workers-workers)
@@ -33,45 +33,39 @@ A modern, fast, and feature-complete Command-Line Interface for managing Cloudfl
 
 ### Execution Lifecycle
 
-```text
-+-------------------------------------------------------------------------+
-|                              USER / SCRIPT                              |
-|          e.g. cloudflare-cli dns create -z <zone> -t A -n api -c 1.2.3.4  |
-+-------------------------------------------------------------------------+
-                                     |
-                                     v
-+-------------------------------------------------------------------------+
-| 1. CLI Entrypoint & Argument Parsing (src/index.ts & src/cli.ts)        |
-|    - Evaluates subcommands and options via Commander.js                 |
-|    - Intercepts global flags (--token, --zone, --account, --output)    |
-+-------------------------------------------------------------------------+
-                                     |
-                                     v
-+-------------------------------------------------------------------------+
-| 2. Config & Auth Resolution (src/utils/config.ts)                       |
-|    - Validates presence of Cloudflare API credentials with Zod schema   |
-|    - Resolves token: CLI Flag > Environment Variable > .env File        |
-+-------------------------------------------------------------------------+
-                                     |
-                                     v
-+-------------------------------------------------------------------------+
-| 3. SDK Client Singleton (src/lib/cloudflare-client.ts)                  |
-|    - Initializes authenticated Cloudflare v4 SDK instance               |
-+-------------------------------------------------------------------------+
-                                     |
-                                     v
-+-------------------------------------------------------------------------+
-| 4. Command Execution & Visual Feedback (src/commands/*)                 |
-|    - Starts Ora spinner for non-blocking asynchronous user feedback     |
-|    - Dispatches API request to Cloudflare endpoints                     |
-+-------------------------------------------------------------------------+
-                                     |
-                                     v
-+-------------------------------------------------------------------------+
-| 5. Output Formatting Engine (src/utils/logger.ts)                       |
-|    - Human Mode: Colored status + Structured ASCII table                |
-|    - Automation Mode (--output json): Raw machine-readable JSON array   |
-+-------------------------------------------------------------------------+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Operator / CI Pipeline
+    participant CLI as CLI Program (src/cli.ts)
+    participant Config as ConfigManager (src/utils/config.ts)
+    participant Handler as Command Handler (src/commands/*)
+    participant Logger as Logger / Spinner (src/utils/logger.ts)
+    participant SDK as Cloudflare Client (src/lib/cloudflare-client.ts)
+    participant CF as Cloudflare API v4
+
+    User->>CLI: Execute Command (e.g., cf-cli dns create ...)
+    CLI->>Config: loadConfig(flags, env, .env)
+    Config-->>CLI: Validated Configuration (token, format, ids)
+
+    CLI->>Handler: Dispatch Command Action
+    Handler->>Logger: Logger.spinner("Creating DNS record...")
+    Logger-->>User: Render live CLI spinner
+
+    Handler->>SDK: getCloudflareClient()
+    SDK->>CF: HTTP Request (Bearer Auth + Payload)
+    CF-->>SDK: HTTP Response (JSON data)
+    SDK-->>Handler: Return Typed SDK Object
+
+    alt Success
+        Handler->>Logger: spinner.succeed("Operation complete")
+        Handler->>Logger: Format Output (Table / JSON / YAML)
+        Logger-->>User: Render structured data to stdout
+    else Error (API / Auth / Validation)
+        Handler->>Logger: spinner.fail("Operation failed")
+        Handler->>Logger: Logger.error(message, error)
+        Logger-->>User: Render formatted error to stderr (Exit Code 1)
+    end
 ```
 
 ### Authentication & Configuration Resolution
@@ -97,6 +91,7 @@ These options are available on all subcommands:
 | `-a` | `--account <accountId>` | Cloudflare Account ID | `$CLOUDFLARE_ACCOUNT_ID` |
 | `-z` | `--zone <zoneId>` | Cloudflare Zone ID | `$CLOUDFLARE_ZONE_ID` |
 | `-o` | `--output <format>` | Output format (`table`, `json`, `yaml`, `csv`) | `table` |
+| `-l` | `--local` | Run in offline mock mode (no internet / token needed) | `false` |
 | `-v` | `--verbose` | Enable verbose debug logs and stack traces | `false` |
 | `-V` | `--version` | Display the CLI version | - |
 | `-h` | `--help` | Display command help and usage info | - |
@@ -105,7 +100,26 @@ These options are available on all subcommands:
 
 ## Command Reference
 
-### 1. Authentication (`auth`, `whoami`)
+### 0. Help & Command Discovery (`help`)
+
+Get categorized command overviews, quickstart guides, and practical examples:
+
+```bash
+# View complete categorized command catalog and quickstart examples
+cloudflare-cli help
+
+# View in-depth usage, options, and examples for a specific command
+cloudflare-cli help dns
+cloudflare-cli help zones
+cloudflare-cli help auth
+cloudflare-cli help workers
+cloudflare-cli help kv
+cloudflare-cli help r2
+```
+
+---
+
+### 1. Authentication & Identity (`auth`, `user:display`)
 
 Manage and verify your Cloudflare credentials.
 
@@ -121,10 +135,10 @@ cloudflare-cli auth verify
 ℹ Status: active
 ```
 
-#### View Authenticated Identity (`whoami`)
-Displays account owner details, user ID, country, and 2FA status.
+#### View Authenticated Identity (`user:display`)
+Displays account owner details, user ID, country, and 2FA status (alias: `whoami`).
 ```bash
-cloudflare-cli whoami
+cloudflare-cli user:display
 ```
 *Output:*
 ```text
@@ -300,7 +314,7 @@ Build and install the compiled executable:
 npm run build
 
 # Run via npm start
-npm start -- whoami
+npm start -- user:display
 
 # Or link globally to run 'cloudflare-cli' anywhere
 npm link
@@ -321,7 +335,7 @@ npm run docker:test
 npm run docker:test:all
 
 # 4. Execute CLI commands inside Docker
-docker compose run --rm cli whoami
+docker compose run --rm cli user:display
 docker compose run --rm cli zones list
 docker compose run --rm cli dns list -z <zoneId>
 ```
@@ -356,8 +370,28 @@ cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="
 
 ---
 
+## 📦 Packaging & macOS DMG Installer
+
+You can package `cloudflare-cli` into a native macOS DMG disk image, standalone tarball, and npm distribution package:
+
+```bash
+# Generate DMG image and standalone distribution package
+npm run package
+
+# Artifacts created in build_artifacts/:
+# - cloudflare-cli-v0.1.0-macos.dmg (macOS Installer DMG)
+# - cloudflare-cli-v0.1.0-package.tar.gz (Standalone package)
+# - cloudflare-cli-0.1.0.tgz (NPM package)
+```
+
+**Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds these artifacts on every push to `main` and attaches them to GitHub Releases.
+
+---
+
 ## Project Documentation & Agentic Framework
 
+- [Developer & Testing Guide (Local & Docker)](DEVELOPER_GUIDE.md)
+- [Docker Architecture & Commands Guide](DOCKER.md)
 - [Master Execution Roadmap](docs/plans/00-master-roadmap.md)
 - [Phase 1 MVP Specification](docs/plans/01-phase-1-mvp-spec.md)
 - [System Architecture & Data Flow](docs/architecture/system-design.md)

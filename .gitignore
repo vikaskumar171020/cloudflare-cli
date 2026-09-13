@@ -5,6 +5,8 @@ node_modules/
 # Build artifacts
 dist/
 build/
+build_artifacts/
+*.dmg
 *.tsbuildinfo
 
 # Environment and secrets

@@ -5,7 +5,7 @@ The MVP of `cloudflare-cli` establishes the core project structure, CLI entrypoi
 
 ## 2. Supported Commands
 - `cf-cli auth verify`: Tests and validates API token.
-- `cf-cli whoami`: Fetches Cloudflare account/user details.
+- `cf-cli user:display`: Fetches Cloudflare account/user details (alias: `whoami`).
 - `cf-cli zones list [--name <name>] [--status <status>]`: Lists all domain zones.
 - `cf-cli zones get <zoneId>`: Displays detailed zone status and nameservers.
 - `cf-cli dns list -z <zoneId> [-t <type>] [-n <name>]`: Lists DNS records.

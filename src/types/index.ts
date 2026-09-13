@@ -6,6 +6,7 @@ export interface CliConfig {
   zoneId?: string;
   outputFormat: OutputFormat;
   verbose: boolean;
+  localMode: boolean;
 }
 
 export interface ApiResponse<T> {

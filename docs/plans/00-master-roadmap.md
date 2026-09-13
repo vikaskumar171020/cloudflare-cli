@@ -9,7 +9,7 @@ Build a modern, robust, high-performance developer CLI for managing the entire C
 - [x] Project scaffolding (TypeScript, ES Modules, Commander, Vitest).
 - [x] Agentic development rules (`AGENTS.md`, `.agents/rules/`, `.agents/skills/`).
 - [x] Docs architecture (`plans/`, `research/`, `architecture/`, `rfc/`).
-- [x] Authentication and configuration (`cf-cli auth verify`, `cf-cli whoami`).
+- [x] Authentication and configuration (`cf-cli auth verify`, `cf-cli user:display`).
 - [x] Zone operations (`cf-cli zones list`, `cf-cli zones get`).
 - [x] DNS record management (`cf-cli dns list`, `cf-cli dns create`, `cf-cli dns delete`).
 - [x] Core resource inspection (`workers list`, `kv list`, `r2 list`).

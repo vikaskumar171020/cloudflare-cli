@@ -1,0 +1,102 @@
+name: Package and Release (DMG & Packages)
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  # ----------------------------------------------------------------------------
+  # Job 1: Lint & Automated Tests
+  # ----------------------------------------------------------------------------
+  test:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type Check & Lint
+        run: npm run lint
+
+      - name: Run Test Suite (Offline Mock Mode)
+        run: npm test
+
+  # ----------------------------------------------------------------------------
+  # Job 2: Build macOS DMG and Packages
+  # ----------------------------------------------------------------------------
+  package-macos:
+    name: Build DMG & Dist Packages
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Standalone Packages and macOS DMG
+        run: ./scripts/package.sh
+
+      - name: Upload Build Artifacts (DMG & Packages)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-cli-dist-packages
+          path: |
+            build_artifacts/*.dmg
+            build_artifacts/*.tgz
+            build_artifacts/*.tar.gz
+          retention-days: 14
+
+  # ----------------------------------------------------------------------------
+  # Job 3: Publish GitHub Release (Only on Git Tags)
+  # ----------------------------------------------------------------------------
+  release:
+    name: Publish Release Assets
+    needs: package-macos
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-cli-dist-packages
+          path: release_assets
+
+      - name: Create GitHub Release & Attach DMG / Packages
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release_assets/*.dmg
+            release_assets/*.tgz
+            release_assets/*.tar.gz
+          generate_release_notes: true
+          draft: false
+          prerelease: false

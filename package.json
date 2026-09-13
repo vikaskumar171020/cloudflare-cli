@@ -19,7 +19,10 @@
     "docker:build": "docker compose build",
     "docker:test": "docker compose run --rm test",
     "docker:test:all": "docker compose run --rm test-all",
-    "docker:cli": "docker compose run --rm cli"
+    "docker:cli": "docker compose run --rm cli",
+    "package": "./scripts/package.sh",
+    "package:dmg": "./scripts/package.sh",
+    "package:npm": "npm pack"
   },
   "keywords": [
     "cloudflare",

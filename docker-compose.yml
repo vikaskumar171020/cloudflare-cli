@@ -1,5 +1,5 @@
 services:
-  # Test Runner Service: Runs vitest test suite inside isolated container
+  # Test Runner Service: Runs vitest test suite inside isolated container with offline mock mode
   test:
     build:
       context: .
@@ -7,9 +7,7 @@ services:
     command: npm test
     environment:
       - NODE_ENV=test
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-mock-token}
-      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID:-mock-account-id}
-      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID:-mock-zone-id}
+      - CLOUDFLARE_LOCAL_MODE=true
 
   # Test & Lint Combined Service
   test-all:
@@ -19,6 +17,7 @@ services:
     command: sh -c "npm run lint && npm test"
     environment:
       - NODE_ENV=test
+      - CLOUDFLARE_LOCAL_MODE=true
 
   # Interactive Dev Container: Mounts host files for live development
   dev:
@@ -29,6 +28,8 @@ services:
       - .:/app
       - /app/node_modules
     command: npm run dev -- --help
+    environment:
+      - CLOUDFLARE_LOCAL_MODE=true
     env_file:
       - path: .env
         required: false

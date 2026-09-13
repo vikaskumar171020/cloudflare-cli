@@ -1,10 +1,22 @@
 import { Command } from 'commander';
+import chalk from 'chalk';
 import { getCloudflareClient } from '../../lib/cloudflare-client.js';
 import { Logger } from '../../utils/logger.js';
 import { ConfigManager } from '../../utils/config.js';
 
 export function registerDnsCommands(program: Command) {
-  const dns = program.command('dns').description('Manage DNS records for a zone');
+  const dns = program
+    .command('dns')
+    .description('Manage DNS records for a zone')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli dns list --zone <zoneId>
+  $ cloudflare-cli dns create --zone <zoneId> -t A -n api -c 1.2.3.4 --proxied
+  $ cloudflare-cli dns delete <recordId> --zone <zoneId>
+`
+    );
 
   dns
     .command('list')
@@ -12,6 +24,17 @@ export function registerDnsCommands(program: Command) {
     .option('-z, --zone <zoneId>', 'Zone ID (or set CLOUDFLARE_ZONE_ID in .env)')
     .option('-t, --type <type>', 'Filter by record type (A, AAAA, CNAME, TXT, MX, etc.)')
     .option('-n, --name <name>', 'Filter by record name / hostname')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli dns list -z 023e105f4ecef8ad9ca31a8372d0c353
+  $ cloudflare-cli dns list -z 023e105f -t A
+  $ cloudflare-cli dns list -z 023e105f -n api.example.com
+  $ cloudflare-cli dns list -z 023e105f -o json
+  $ cloudflare-cli dns list --local -z mock-zone-001
+`
+    )
     .action(async (options) => {
       const config = ConfigManager.getConfig();
       const zoneId = options.zone || config.zoneId;
@@ -62,6 +85,20 @@ export function registerDnsCommands(program: Command) {
     .requiredOption('-c, --content <content>', 'Record content (IP, target, text)')
     .option('-p, --proxied', 'Enable Cloudflare proxy (orange cloud)', false)
     .option('--ttl <ttl>', 'Time to live (1 = automatic)', '1')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  # Create an A record proxied through Cloudflare:
+  $ cloudflare-cli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied
+
+  # Create a CNAME record with custom TTL:
+  $ cloudflare-cli dns create -z 023e105f -t CNAME -n blog -c custom.domain.com --ttl 300
+
+  # Create a TXT SPF verification record:
+  $ cloudflare-cli dns create -z 023e105f -t TXT -n example.com -c "v=spf1 include:_spf.mx.com ~all"
+`
+    )
     .action(async (options) => {
       const spinner = Logger.spinner(`Creating ${options.type} record for ${options.name}...`);
       try {
@@ -98,6 +135,13 @@ export function registerDnsCommands(program: Command) {
     .command('delete <recordId>')
     .description('Delete a DNS record')
     .requiredOption('-z, --zone <zoneId>', 'Zone ID')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cloudflare-cli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f4ecef8ad9ca31a8372d0c353
+`
+    )
     .action(async (recordId, options) => {
       const spinner = Logger.spinner(`Deleting DNS record ${recordId}...`);
       try {
