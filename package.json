@@ -1,0 +1,54 @@
+{
+  "name": "cloudflare-cli",
+  "version": "0.1.0",
+  "description": "Powerful, modern command-line interface for managing Cloudflare resources (DNS, Zones, Workers, KV, R2, Cache, and Security).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "cf-cli": "./dist/index.js",
+    "cloudflare-cli": "./dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc && chmod +x dist/index.js",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "docker:build": "docker compose build",
+    "docker:test": "docker compose run --rm test",
+    "docker:test:all": "docker compose run --rm test-all",
+    "docker:cli": "docker compose run --rm cli"
+  },
+  "keywords": [
+    "cloudflare",
+    "cli",
+    "dns",
+    "workers",
+    "kv",
+    "r2",
+    "devops",
+    "automation",
+    "antigravity"
+  ],
+  "author": "Antigravity Dev",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cloudflare": "^4.1.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "ora": "^8.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

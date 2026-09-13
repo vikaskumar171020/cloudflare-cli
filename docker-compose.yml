@@ -1,0 +1,43 @@
+services:
+  # Test Runner Service: Runs vitest test suite inside isolated container
+  test:
+    build:
+      context: .
+      target: test
+    command: npm test
+    environment:
+      - NODE_ENV=test
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-mock-token}
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID:-mock-account-id}
+      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID:-mock-zone-id}
+
+  # Test & Lint Combined Service
+  test-all:
+    build:
+      context: .
+      target: test
+    command: sh -c "npm run lint && npm test"
+    environment:
+      - NODE_ENV=test
+
+  # Interactive Dev Container: Mounts host files for live development
+  dev:
+    build:
+      context: .
+      target: deps
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev -- --help
+    env_file:
+      - path: .env
+        required: false
+
+  # CLI Executable Service: Runs built containerized CLI commands
+  cli:
+    build:
+      context: .
+      target: runner
+    env_file:
+      - path: .env
+        required: false
