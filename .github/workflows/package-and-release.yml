@@ -211,10 +211,22 @@ jobs:
           TGZ_FILE=$(ls release_assets/*.tgz | head -n 1)
           if [ -f "$TGZ_FILE" ]; then
             echo "Publishing $TGZ_FILE to GitHub Packages..."
-            npm publish "$TGZ_FILE" --registry=https://npm.pkg.github.com || echo "Note: Package publish skipped if version already exists."
+            npm publish "$TGZ_FILE" --registry=https://npm.pkg.github.com || echo "Note: Package publish to GitHub Packages skipped if version already exists."
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Public NPM Registry (npmjs.com)
+        if: ${{ env.NPM_TOKEN != '' }}
+        run: |
+          TGZ_FILE=$(ls release_assets/*.tgz | head -n 1)
+          if [ -f "$TGZ_FILE" ]; then
+            echo "Publishing $TGZ_FILE to npmjs.com..."
+            npm publish "$TGZ_FILE" --access public --registry=https://registry.npmjs.org/ || echo "Note: Package publish to npmjs.com skipped if version already exists."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Log in to GitHub Container Registry (ghcr.io)
         uses: docker/login-action@v3
@@ -238,9 +250,10 @@ jobs:
 
       - name: Summary
         run: |
-          echo "## 🚀 Release Published Successfully to GitHub!" >> $GITHUB_STEP_SUMMARY
-          echo "Your release is now live and visible across GitHub Releases and GitHub Packages:" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "Your release is now live across all distribution channels:" >> $GITHUB_STEP_SUMMARY
           echo "- **Auto-Bumped Tag**: \`${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Public NPM**: [\`@${{ github.repository_owner }}/cloudflare-cli\`](https://www.npmjs.com/package/@${{ github.repository_owner }}/cloudflare-cli)" >> $GITHUB_STEP_SUMMARY
           echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.release_tag }})" >> $GITHUB_STEP_SUMMARY
           echo "- **macOS DMG Installer**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-macos.dmg\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Standalone Package**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-package.tar.gz\`" >> $GITHUB_STEP_SUMMARY

@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-cli",
+  "name": "@vikaskumartank/cloudflare-cli",
   "version": "0.2.2",
   "description": "Powerful, modern command-line interface for managing Cloudflare resources (DNS, Zones, Workers, KV, R2, Cache, and Security).",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "url": "git+https://github.com/vikaskumartank/cloudflare-cli.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "bin": {
     "cf-cli": "./dist/index.js",

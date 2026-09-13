@@ -370,22 +370,30 @@ cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="
 
 ---
 
-## 📦 Installation & Releases (GitHub Releases & GitHub Packages)
+## 📦 Installation & Releases
 
-Every release of `cloudflare-cli` is published directly to GitHub across all major channels:
+`cloudflare-cli` is distributed across all major package ecosystems:
 
-### 1. Install via GitHub Packages (NPM)
-Install the CLI globally from the GitHub Packages npm registry:
+### 1. Install via NPM (npmjs.com)
+Install globally or execute instantly via `npx`:
 ```bash
-# Install globally via GitHub Packages registry
-npm install -g @vikaskumartank/cloudflare-cli --registry=https://npm.pkg.github.com
+# Global install via npm
+npm install -g @vikaskumartank/cloudflare-cli
 
-# Run anywhere
+# Instant execution with npx (no install needed)
+npx @vikaskumartank/cloudflare-cli user:display
+
+# Run CLI
 cloudflare-cli --help
 cf-cli user:display
 ```
 
-### 2. Run via GitHub Container Registry (Docker)
+### 2. Install via GitHub Packages
+```bash
+npm install -g @vikaskumartank/cloudflare-cli --registry=https://npm.pkg.github.com
+```
+
+### 3. Run via GitHub Container Registry (Docker)
 Pull and execute directly from GitHub Packages (GHCR) without needing Node.js installed:
 ```bash
 # Execute directly from GHCR
@@ -397,7 +405,7 @@ docker run --rm -it \
 docker run --rm -it ghcr.io/vikaskumartank/cloudflare-cli:latest --local user:display
 ```
 
-### 3. Download from GitHub Releases
+### 4. Download from GitHub Releases
 Pre-compiled distributions are published under the repository's **Releases** tab:
 - **macOS Installer (`.dmg`)**: Open the DMG and run `./install.sh` for 1-click global terminal setup.
 - **Standalone Tarball (`.tar.gz`)**: Extract and run with bundled dependencies on macOS or Linux.
