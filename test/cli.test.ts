@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createCli } from '../src/cli.js';
 
-describe('cloudflare-cli', () => {
+describe('cfcli', () => {
   it('should initialize commander instance with correct name and commands', () => {
     const cli = createCli();
-    expect(cli.name()).toBe('cloudflare-cli');
+    expect(cli.name()).toBe('cfcli');
 
     const commandNames = cli.commands.map((cmd) => cmd.name());
     expect(commandNames).toContain('auth');
@@ -20,7 +20,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride(); // Prevent process.exit in tests
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'auth', 'verify'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'auth', 'verify'])
     ).resolves.not.toThrow();
   });
 
@@ -28,7 +28,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'user:display'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'user:display'])
     ).resolves.not.toThrow();
   });
 
@@ -36,7 +36,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', '-o', 'json', 'zones', 'list'])
+      cli.parseAsync(['node', 'cfcli', '--local', '-o', 'json', 'zones', 'list'])
     ).resolves.not.toThrow();
   });
 
@@ -44,7 +44,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'dns', 'list', '-z', 'mock-zone-001'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'dns', 'list', '-z', 'mock-zone-001'])
     ).resolves.not.toThrow();
   });
 
@@ -52,7 +52,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'workers', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'workers', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -60,7 +60,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'kv', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'kv', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -68,7 +68,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', '--local', 'r2', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cfcli', '--local', 'r2', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -76,7 +76,7 @@ describe('cloudflare-cli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cloudflare-cli', 'help'])
+      cli.parseAsync(['node', 'cfcli', 'help'])
     ).resolves.not.toThrow();
   });
 
@@ -86,7 +86,7 @@ describe('cloudflare-cli', () => {
       const cli = createCli();
       cli.exitOverride();
       await expect(
-        cli.parseAsync(['node', 'cloudflare-cli', 'help', sub])
+        cli.parseAsync(['node', 'cfcli', 'help', sub])
       ).resolves.not.toThrow();
     }
   });

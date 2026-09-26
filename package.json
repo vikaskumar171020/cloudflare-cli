@@ -1,9 +1,14 @@
 {
-  "name": "cloudflare-cli",
+  "name": "@vikaskumar171020/cfcli",
   "version": "0.2.4",
   "description": "Powerful, modern command-line interface for managing Cloudflare resources (DNS, Zones, Workers, KV, R2, Cache, and Security).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vikaskumartank/cloudflare-cli.git"
@@ -12,13 +17,14 @@
     "access": "public"
   },
   "bin": {
-    "cf-cli": "./dist/index.js",
-    "cloudflare-cli": "./dist/index.js"
+    "cfcli": "./dist/index.js",
+    "cf-cli": "./dist/index.js"
   },
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc && chmod +x dist/index.js",
+    "prepublishOnly": "npm run build && npm test",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",

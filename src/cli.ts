@@ -25,7 +25,7 @@ export function createCli(): Command {
   const program = new Command();
 
   program
-    .name('cloudflare-cli')
+    .name('cfcli')
     .description('Modern CLI tool for managing Cloudflare services and infrastructure')
     .version(pkgVersion)
     .option('-t, --token <token>', 'Cloudflare API Token')
@@ -38,14 +38,14 @@ export function createCli(): Command {
       'after',
       `
 ${chalk.bold.yellow('Quick Examples:')}
-  $ cloudflare-cli --local user:display
-  $ cloudflare-cli zones list
-  $ cloudflare-cli dns list -z <zoneId>
-  $ cloudflare-cli dns create -z <zoneId> -t A -n api -c 1.2.3.4 --proxied
-  $ cloudflare-cli workers list -a <accountId>
-  $ cloudflare-cli help dns
+  $ cfcli --local user:display
+  $ cfcli zones list
+  $ cfcli dns list -z <zoneId>
+  $ cfcli dns create -z <zoneId> -t A -n api -c 1.2.3.4 --proxied
+  $ cfcli workers list -a <accountId>
+  $ cfcli help dns
 
-${chalk.dim('Run "cloudflare-cli help" for complete command catalog and categorized examples.')}
+${chalk.dim('Run "cfcli help" for complete command catalog and categorized examples.')}
 `
     )
     .hook('preAction', (thisCommand) => {

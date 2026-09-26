@@ -12,9 +12,9 @@ export function registerDnsCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli dns list --zone <zoneId>
-  $ cloudflare-cli dns create --zone <zoneId> -t A -n api -c 1.2.3.4 --proxied
-  $ cloudflare-cli dns delete <recordId> --zone <zoneId>
+  $ cfcli dns list --zone <zoneId>
+  $ cfcli dns create --zone <zoneId> -t A -n api -c 1.2.3.4 --proxied
+  $ cfcli dns delete <recordId> --zone <zoneId>
 `
     );
 
@@ -28,11 +28,11 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli dns list -z 023e105f4ecef8ad9ca31a8372d0c353
-  $ cloudflare-cli dns list -z 023e105f -t A
-  $ cloudflare-cli dns list -z 023e105f -n api.example.com
-  $ cloudflare-cli dns list -z 023e105f -o json
-  $ cloudflare-cli dns list --local -z mock-zone-001
+  $ cfcli dns list -z 023e105f4ecef8ad9ca31a8372d0c353
+  $ cfcli dns list -z 023e105f -t A
+  $ cfcli dns list -z 023e105f -n api.example.com
+  $ cfcli dns list -z 023e105f -o json
+  $ cfcli dns list --local -z mock-zone-001
 `
     )
     .action(async (options) => {
@@ -90,13 +90,13 @@ ${chalk.bold.yellow('Examples:')}
       `
 ${chalk.bold.yellow('Examples:')}
   # Create an A record proxied through Cloudflare:
-  $ cloudflare-cli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied
+  $ cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied
 
   # Create a CNAME record with custom TTL:
-  $ cloudflare-cli dns create -z 023e105f -t CNAME -n blog -c custom.domain.com --ttl 300
+  $ cfcli dns create -z 023e105f -t CNAME -n blog -c custom.domain.com --ttl 300
 
   # Create a TXT SPF verification record:
-  $ cloudflare-cli dns create -z 023e105f -t TXT -n example.com -c "v=spf1 include:_spf.mx.com ~all"
+  $ cfcli dns create -z 023e105f -t TXT -n example.com -c "v=spf1 include:_spf.mx.com ~all"
 `
     )
     .action(async (options) => {
@@ -139,7 +139,7 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f4ecef8ad9ca31a8372d0c353
+  $ cfcli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f4ecef8ad9ca31a8372d0c353
 `
     )
     .action(async (recordId, options) => {

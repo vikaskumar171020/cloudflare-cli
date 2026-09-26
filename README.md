@@ -1,4 +1,4 @@
-# cloudflare-cli
+# cfcli
 
 A modern, fast, and feature-complete Command-Line Interface for managing Cloudflare services (DNS, Zones, Workers, KV, R2, Cache, and Security). Built with TypeScript (ES Modules), Commander.js, and the official Cloudflare Node.js SDK v4.
 
@@ -29,7 +29,7 @@ A modern, fast, and feature-complete Command-Line Interface for managing Cloudfl
 
 ## How the CLI Works
 
-`cloudflare-cli` acts as an extensible bridge between terminal operators / CI/CD systems and Cloudflare's REST API v4.
+`cfcli` acts as an extensible bridge between terminal operators / CI/CD systems and Cloudflare's REST API v4.
 
 ### Execution Lifecycle
 
@@ -106,15 +106,15 @@ Get categorized command overviews, quickstart guides, and practical examples:
 
 ```bash
 # View complete categorized command catalog and quickstart examples
-cloudflare-cli help
+cfcli help
 
 # View in-depth usage, options, and examples for a specific command
-cloudflare-cli help dns
-cloudflare-cli help zones
-cloudflare-cli help auth
-cloudflare-cli help workers
-cloudflare-cli help kv
-cloudflare-cli help r2
+cfcli help dns
+cfcli help zones
+cfcli help auth
+cfcli help workers
+cfcli help kv
+cfcli help r2
 ```
 
 ---
@@ -126,7 +126,7 @@ Manage and verify your Cloudflare credentials.
 #### Verify API Token
 Tests whether the configured API Token is active and valid.
 ```bash
-cloudflare-cli auth verify
+cfcli auth verify
 ```
 *Output:*
 ```text
@@ -138,7 +138,7 @@ cloudflare-cli auth verify
 #### View Authenticated Identity (`user:display`)
 Displays account owner details, user ID, country, and 2FA status (alias: `whoami`).
 ```bash
-cloudflare-cli user:display
+cfcli user:display
 ```
 *Output:*
 ```text
@@ -160,13 +160,13 @@ Manage domains and zones associated with your Cloudflare account.
 Lists all zones with their status, plan tier, and account affiliation.
 ```bash
 # List all zones
-cloudflare-cli zones list
+cfcli zones list
 
 # Filter by domain name
-cloudflare-cli zones list --name example.com
+cfcli zones list --name example.com
 
 # Filter by status
-cloudflare-cli zones list --status active
+cfcli zones list --status active
 ```
 *Table Output:*
 ```text
@@ -181,7 +181,7 @@ cloudflare-cli zones list --status active
 #### Get Zone Details
 Retrieves full details for a single zone, including nameservers.
 ```bash
-cloudflare-cli zones get <zoneId>
+cfcli zones get <zoneId>
 ```
 
 ---
@@ -193,13 +193,13 @@ Manage DNS records for your domains (A, AAAA, CNAME, TXT, MX, etc.).
 #### List DNS Records
 ```bash
 # List all records for a zone
-cloudflare-cli dns list --zone <zoneId>
+cfcli dns list --zone <zoneId>
 
 # Filter by record type (A, CNAME, TXT)
-cloudflare-cli dns list -z <zoneId> --type A
+cfcli dns list -z <zoneId> --type A
 
 # Filter by record hostname
-cloudflare-cli dns list -z <zoneId> --name api.example.com
+cfcli dns list -z <zoneId> --name api.example.com
 ```
 *Table Output:*
 ```text
@@ -215,7 +215,7 @@ cloudflare-cli dns list -z <zoneId> --name api.example.com
 #### Create a DNS Record
 ```bash
 # Create an A record proxied through Cloudflare (Orange Cloud)
-cloudflare-cli dns create \
+cfcli dns create \
   --zone <zoneId> \
   --type A \
   --name api.example.com \
@@ -223,7 +223,7 @@ cloudflare-cli dns create \
   --proxied
 
 # Create a CNAME record without proxy
-cloudflare-cli dns create \
+cfcli dns create \
   -z <zoneId> \
   -t CNAME \
   -n blog.example.com \
@@ -232,7 +232,7 @@ cloudflare-cli dns create \
 
 #### Delete a DNS Record
 ```bash
-cloudflare-cli dns delete <recordId> --zone <zoneId>
+cfcli dns delete <recordId> --zone <zoneId>
 ```
 
 ---
@@ -243,7 +243,7 @@ Manage serverless Cloudflare Workers scripts.
 
 #### List Worker Scripts
 ```bash
-cloudflare-cli workers list --account <accountId>
+cfcli workers list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -263,7 +263,7 @@ Manage globally distributed key-value storage namespaces.
 
 #### List KV Namespaces
 ```bash
-cloudflare-cli kv list --account <accountId>
+cfcli kv list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -283,7 +283,7 @@ Manage S3-compatible Cloudflare R2 storage buckets without egress fees.
 
 #### List R2 Buckets
 ```bash
-cloudflare-cli r2 list --account <accountId>
+cfcli r2 list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -316,9 +316,9 @@ npm run build
 # Run via npm start
 npm start -- user:display
 
-# Or link globally to run 'cloudflare-cli' anywhere
+# Or link globally to run 'cfcli' anywhere
 npm link
-cloudflare-cli --version
+cfcli --version
 ```
 
 ### Docker Containerized Mode
@@ -345,10 +345,10 @@ Using `--output json` outputs pure, unformatted JSON payloads:
 
 ```bash
 # Extract all active domain names using jq
-cloudflare-cli zones list --output json | jq -r '.[].name'
+cfcli zones list --output json | jq -r '.[].name'
 
 # Extract DNS record IDs for a specific hostname
-cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="api.example.com") | .id'
+cfcli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="api.example.com") | .id'
 ```
 
 ---
@@ -372,25 +372,25 @@ cloudflare-cli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="
 
 ## 📦 Installation & Releases
 
-`cloudflare-cli` is distributed across all major package ecosystems:
+`cfcli` is distributed across all major package ecosystems:
 
 ### 1. Install via NPM (npmjs.com)
 Install globally or execute instantly via `npx`:
 ```bash
 # Global install via npm
-npm install -g @vikaskumartank/cloudflare-cli
+npm install -g @vikaskumar171020/cfcli
 
 # Instant execution with npx (no install needed)
-npx @vikaskumartank/cloudflare-cli user:display
+npx @vikaskumar171020/cfcli user:display
 
 # Run CLI
-cloudflare-cli --help
+cfcli --help
 cf-cli user:display
 ```
 
 ### 2. Install via GitHub Packages
 ```bash
-npm install -g @vikaskumartank/cloudflare-cli --registry=https://npm.pkg.github.com
+npm install -g @vikaskumar171020/cfcli --registry=https://npm.pkg.github.com
 ```
 
 ### 3. Run via GitHub Container Registry (Docker)
@@ -399,10 +399,10 @@ Pull and execute directly from GitHub Packages (GHCR) without needing Node.js in
 # Execute directly from GHCR
 docker run --rm -it \
   -e CLOUDFLARE_API_TOKEN="your_token_here" \
-  ghcr.io/vikaskumartank/cloudflare-cli:latest user:display
+  ghcr.io/vikaskumar171020/cfcli:latest user:display
 
 # Or run in offline mock mode
-docker run --rm -it ghcr.io/vikaskumartank/cloudflare-cli:latest --local user:display
+docker run --rm -it ghcr.io/vikaskumar171020/cfcli:latest --local user:display
 ```
 
 ### 4. Download from GitHub Releases
@@ -416,9 +416,9 @@ Pre-compiled distributions are published under the repository's **Releases** tab
 npm run package
 
 # Artifacts created in build_artifacts/:
-# - cloudflare-cli-v0.1.0-macos.dmg (macOS Installer DMG)
-# - cloudflare-cli-v0.1.0-package.tar.gz (Standalone package)
-# - vikaskumartank-cloudflare-cli-0.1.0.tgz (NPM package)
+# - cfcli-v0.2.4-macos.dmg (macOS Installer DMG)
+# - cfcli-v0.2.4-package.tar.gz (Standalone package)
+# - vikaskumar171020-cfcli-0.2.4.tgz (NPM package)
 ```
 
 **Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes the DMG, Standalone Tarball, GitHub Packages (NPM registry), and GitHub Container Registry (Docker image) when a tag is pushed or triggered manually.

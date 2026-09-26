@@ -20,7 +20,7 @@ function renderRootHelp() {
 ${chalk.bold.cyan('Cloudflare CLI (cf-cli)')} - ${chalk.dim('Modern CLI tool for managing Cloudflare resources')}
 
 ${chalk.bold.yellow('Usage:')}
-  ${chalk.green('cloudflare-cli')} ${chalk.magenta('[options]')} ${chalk.cyan('<command>')} ${chalk.dim('[subcommand] [flags]')}
+  ${chalk.green('cfcli')} ${chalk.magenta('[options]')} ${chalk.cyan('<command>')} ${chalk.dim('[subcommand] [flags]')}
 
 ${chalk.bold.yellow('Available Commands & Categories:')}
 
@@ -53,22 +53,22 @@ ${chalk.bold.yellow('Global Flags:')}
 
 ${chalk.bold.yellow('Quickstart Examples:')}
   ${chalk.dim('# 1. Test offline mock mode')}
-  ${chalk.green('cloudflare-cli --local user:display')}
+  ${chalk.green('cfcli --local user:display')}
 
   ${chalk.dim('# 2. List zones in table format')}
-  ${chalk.green('cloudflare-cli zones list')}
+  ${chalk.green('cfcli zones list')}
 
   ${chalk.dim('# 3. List DNS records for a specific zone')}
-  ${chalk.green('cloudflare-cli dns list -z 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.green('cfcli dns list -z 023e105f4ecef8ad9ca31a8372d0c353')}
 
   ${chalk.dim('# 4. Create a proxied A record')}
-  ${chalk.green('cloudflare-cli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
+  ${chalk.green('cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
 
   ${chalk.dim('# 5. Query data formatted as pure JSON')}
-  ${chalk.green('cloudflare-cli zones list -o json')}
+  ${chalk.green('cfcli zones list -o json')}
 
 ${chalk.dim('For in-depth help and examples for a specific command, run:')}
-  ${chalk.cyan('cloudflare-cli help <command>')}  ${chalk.dim('(e.g. cloudflare-cli help dns)')}
+  ${chalk.cyan('cfcli help <command>')}  ${chalk.dim('(e.g. cfcli help dns)')}
 `);
 }
 
@@ -82,13 +82,13 @@ ${chalk.dim('Verify credentials and check Cloudflare API Token status & expirati
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# Verify API Token using .env or environment variable')}
-  ${chalk.green('cloudflare-cli auth verify')}
+  ${chalk.green('cfcli auth verify')}
 
   ${chalk.dim('# Verify an explicitly passed API Token')}
-  ${chalk.green('cloudflare-cli auth verify --token v4.0.0-9a8b7c6d5e4f...')}
+  ${chalk.green('cfcli auth verify --token v4.0.0-9a8b7c6d5e4f...')}
 
   ${chalk.dim('# Test token verification in local offline mode')}
-  ${chalk.green('cloudflare-cli auth verify --local')}
+  ${chalk.green('cfcli auth verify --local')}
 `);
       break;
 
@@ -101,13 +101,13 @@ ${chalk.dim('Display authenticated user profile, user ID, name/country, and 2FA 
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# View current user details')}
-  ${chalk.green('cloudflare-cli user:display')}
+  ${chalk.green('cfcli user:display')}
 
   ${chalk.dim('# Output user details as JSON')}
-  ${chalk.green('cloudflare-cli user:display --output json')}
+  ${chalk.green('cfcli user:display --output json')}
 
   ${chalk.dim('# Test user:display in local offline mode')}
-  ${chalk.green('cloudflare-cli user:display -l')}
+  ${chalk.green('cfcli user:display -l')}
 `);
       break;
 
@@ -122,19 +122,19 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List all active domain zones')}
-  ${chalk.green('cloudflare-cli zones list')}
+  ${chalk.green('cfcli zones list')}
 
   ${chalk.dim('# Filter zones by name')}
-  ${chalk.green('cloudflare-cli zones list --name example.com')}
+  ${chalk.green('cfcli zones list --name example.com')}
 
   ${chalk.dim('# Filter zones by status')}
-  ${chalk.green('cloudflare-cli zones list --status active')}
+  ${chalk.green('cfcli zones list --status active')}
 
   ${chalk.dim('# Get nameservers and plan details for a specific zone')}
-  ${chalk.green('cloudflare-cli zones get 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.green('cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353')}
 
   ${chalk.dim('# List zones in JSON format')}
-  ${chalk.green('cloudflare-cli zones list -o json')}
+  ${chalk.green('cfcli zones list -o json')}
 `);
       break;
 
@@ -150,22 +150,22 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# 1. List all records for a zone')}
-  ${chalk.green('cloudflare-cli dns list --zone 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.green('cfcli dns list --zone 023e105f4ecef8ad9ca31a8372d0c353')}
 
   ${chalk.dim('# 2. Filter DNS records by type (e.g. A records)')}
-  ${chalk.green('cloudflare-cli dns list -z 023e105f -t A')}
+  ${chalk.green('cfcli dns list -z 023e105f -t A')}
 
   ${chalk.dim('# 3. Filter DNS records by hostname')}
-  ${chalk.green('cloudflare-cli dns list -z 023e105f -n api.example.com')}
+  ${chalk.green('cfcli dns list -z 023e105f -n api.example.com')}
 
   ${chalk.dim('# 4. Create an A record with Cloudflare Proxy enabled (Orange Cloud)')}
-  ${chalk.green('cloudflare-cli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
+  ${chalk.green('cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
 
   ${chalk.dim('# 5. Create a CNAME record with custom TTL')}
-  ${chalk.green('cloudflare-cli dns create -z 023e105f -t CNAME -n docs.example.com -c custom.domain.io --ttl 300')}
+  ${chalk.green('cfcli dns create -z 023e105f -t CNAME -n docs.example.com -c custom.domain.io --ttl 300')}
 
   ${chalk.dim('# 6. Delete a DNS record')}
-  ${chalk.green('cloudflare-cli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f')}
+  ${chalk.green('cfcli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f')}
 `);
       break;
 
@@ -179,13 +179,13 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List Workers scripts in an account')}
-  ${chalk.green('cloudflare-cli workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cfcli workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Output Workers scripts list as JSON')}
-  ${chalk.green('cloudflare-cli workers list -a 1a2b3c4d -o json')}
+  ${chalk.green('cfcli workers list -a 1a2b3c4d -o json')}
 
   ${chalk.dim('# Test workers list in local offline mode')}
-  ${chalk.green('cloudflare-cli workers list --local -a mock-acc-001')}
+  ${chalk.green('cfcli workers list --local -a mock-acc-001')}
 `);
       break;
 
@@ -199,10 +199,10 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List all KV namespaces')}
-  ${chalk.green('cloudflare-cli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cfcli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Test KV list in local offline mode')}
-  ${chalk.green('cloudflare-cli kv list --local -a mock-acc-001')}
+  ${chalk.green('cfcli kv list --local -a mock-acc-001')}
 `);
       break;
 
@@ -216,19 +216,19 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List R2 storage buckets')}
-  ${chalk.green('cloudflare-cli r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cfcli r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Output R2 buckets as JSON')}
-  ${chalk.green('cloudflare-cli r2 list -a 1a2b3c4d -o json')}
+  ${chalk.green('cfcli r2 list -a 1a2b3c4d -o json')}
 
   ${chalk.dim('# Test R2 buckets in local offline mode')}
-  ${chalk.green('cloudflare-cli r2 list --local -a mock-acc-001')}
+  ${chalk.green('cfcli r2 list --local -a mock-acc-001')}
 `);
       break;
 
     default:
       console.log(chalk.red(`Unknown command: '${command}'.`));
-      console.log(`Run ${chalk.cyan('cloudflare-cli help')} to see all available commands.`);
+      console.log(`Run ${chalk.cyan('cfcli help')} to see all available commands.`);
       process.exitCode = 1;
       break;
   }

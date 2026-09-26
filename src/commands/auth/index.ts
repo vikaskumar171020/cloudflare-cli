@@ -12,9 +12,9 @@ export function registerAuthCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli auth verify
-  $ cloudflare-cli auth verify --token <custom_token>
-  $ cloudflare-cli auth verify --local
+  $ cfcli auth verify
+  $ cfcli auth verify --token <custom_token>
+  $ cfcli auth verify --local
 `
     );
 
@@ -25,9 +25,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli auth verify
-  $ cloudflare-cli auth verify --token my-secret-token
-  $ cloudflare-cli auth verify -o json
+  $ cfcli auth verify
+  $ cfcli auth verify --token my-secret-token
+  $ cfcli auth verify -o json
 `
     )
     .action(async () => {
@@ -63,9 +63,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli user:display
-  $ cloudflare-cli user:display --output json
-  $ cloudflare-cli user:display --local
+  $ cfcli user:display
+  $ cfcli user:display --output json
+  $ cfcli user:display --local
 `
     )
     .action(async () => {

@@ -46,5 +46,5 @@ COPY --from=builder /app/dist ./dist
 # Symlink CLI binary to PATH
 RUN npm link
 
-ENTRYPOINT ["cloudflare-cli"]
+ENTRYPOINT ["cfcli"]
 CMD ["--help"]

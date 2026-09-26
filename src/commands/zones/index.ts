@@ -12,9 +12,9 @@ export function registerZonesCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli zones list
-  $ cloudflare-cli zones list --name example.com
-  $ cloudflare-cli zones get 023e105f4ecef8ad9ca31a8372d0c353
+  $ cfcli zones list
+  $ cfcli zones list --name example.com
+  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353
 `
     );
 
@@ -27,11 +27,11 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli zones list
-  $ cloudflare-cli zones list --name example.com
-  $ cloudflare-cli zones list --status active
-  $ cloudflare-cli zones list --output json
-  $ cloudflare-cli zones list --local
+  $ cfcli zones list
+  $ cfcli zones list --name example.com
+  $ cfcli zones list --status active
+  $ cfcli zones list --output json
+  $ cfcli zones list --local
 `
     )
     .action(async (options) => {
@@ -72,8 +72,8 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cloudflare-cli zones get 023e105f4ecef8ad9ca31a8372d0c353
-  $ cloudflare-cli zones get 023e105f4ecef8ad9ca31a8372d0c353 --output json
+  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353
+  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353 --output json
 `
     )
     .action(async (zoneId) => {
