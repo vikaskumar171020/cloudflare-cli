@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import type { CliConfig, OutputFormat } from '../types/index.js';
+import type { CliConfig, OutputFormat, TokenSource } from '../types/index.js';
+import { UserConfigManager } from './user-config.js';
 
 // Load environment variables from .env if present
 dotenv.config();
@@ -21,11 +22,34 @@ export class ConfigManager {
 
   public static loadConfig(overrides?: Partial<CliConfig>): CliConfig {
     const env = envSchema.parse(process.env);
+    const userConfig = UserConfigManager.readUserConfig();
+
+    let apiToken: string | undefined = overrides?.apiToken;
+    let tokenSource: TokenSource = 'none';
+
+    if (overrides?.localMode || env.CLOUDFLARE_LOCAL_MODE) {
+      tokenSource = 'mock';
+      apiToken = apiToken || 'mock-local-token';
+    } else if (overrides?.apiToken) {
+      tokenSource = 'flag';
+      apiToken = overrides.apiToken;
+    } else if (env.CLOUDFLARE_API_TOKEN) {
+      tokenSource = 'env';
+      apiToken = env.CLOUDFLARE_API_TOKEN;
+    } else if (userConfig.apiToken) {
+      tokenSource = 'user-config';
+      apiToken = userConfig.apiToken;
+    }
+
+    const accountId =
+      overrides?.accountId || env.CLOUDFLARE_ACCOUNT_ID || userConfig.accountId;
+    const zoneId = overrides?.zoneId || env.CLOUDFLARE_ZONE_ID || userConfig.zoneId;
 
     this.config = {
-      apiToken: overrides?.apiToken || env.CLOUDFLARE_API_TOKEN,
-      accountId: overrides?.accountId || env.CLOUDFLARE_ACCOUNT_ID,
-      zoneId: overrides?.zoneId || env.CLOUDFLARE_ZONE_ID,
+      apiToken,
+      tokenSource,
+      accountId,
+      zoneId,
       outputFormat: (overrides?.outputFormat || env.CLOUDFLARE_CLI_OUTPUT_FORMAT) as OutputFormat,
       verbose: overrides?.verbose ?? false,
       localMode: overrides?.localMode ?? env.CLOUDFLARE_LOCAL_MODE ?? false,
@@ -48,7 +72,7 @@ export class ConfigManager {
     }
     if (!config.apiToken) {
       throw new Error(
-        'Missing Cloudflare API Token. Please provide it via --token flag, set CLOUDFLARE_API_TOKEN in your environment, or run with --local for offline mode.'
+        'Missing Cloudflare API Token. Run "cfcli auth login" to authenticate with OAuth authorization code, provide --token, or set CLOUDFLARE_API_TOKEN in your environment.'
       );
     }
     return config.apiToken;

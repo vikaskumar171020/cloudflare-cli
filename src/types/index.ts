@@ -1,7 +1,9 @@
 export type OutputFormat = 'table' | 'json' | 'yaml' | 'csv';
+export type TokenSource = 'flag' | 'env' | 'user-config' | 'mock' | 'none';
 
 export interface CliConfig {
   apiToken?: string;
+  tokenSource?: TokenSource;
   accountId?: string;
   zoneId?: string;
   outputFormat: OutputFormat;
@@ -15,3 +17,4 @@ export interface ApiResponse<T> {
   error?: string;
   messages?: string[];
 }
+

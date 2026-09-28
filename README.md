@@ -1,3 +1,4 @@
+
 # cfcli
 
 A modern, fast, and feature-complete Command-Line Interface for managing Cloudflare services (DNS, Zones, Workers, KV, R2, Cache, and Security). Built with TypeScript (ES Modules), Commander.js, and the official Cloudflare Node.js SDK v4.
@@ -119,20 +120,53 @@ cfcli help r2
 
 ---
 
-### 1. Authentication & Identity (`auth`, `user:display`)
+### 1. Authentication & Identity (`auth`, `login`, `user:display`)
 
-Manage and verify your Cloudflare credentials.
+Manage and verify your Cloudflare credentials with OAuth 2.0 Authorization Code flow (PKCE) or direct API tokens.
 
-#### Verify API Token
-Tests whether the configured API Token is active and valid.
+#### OAuth 2.0 Authorization Code Login (`auth login` / `login`)
+Starts the interactive browser authentication flow with PKCE and a local callback listener:
 ```bash
+# Interactive browser login with PKCE
+cfcli auth login
+
+# Headless / remote server login (manual code entry)
+cfcli auth login --manual
+
+# Offline mock simulation login
+cfcli auth login --local
+```
+
+#### Verify Active Token or Auth Code (`auth verify`)
+Tests whether the configured API Token is active and valid, or exchanges an authorization code in one step:
+```bash
+# Verify currently active token
 cfcli auth verify
+
+# Exchange authorization code and verify in one step
+cfcli auth verify --code <authCode>
+
+# Verify explicit token
+cfcli auth verify --token <custom_token>
 ```
 *Output:*
 ```text
 ✔ API Token is valid!
 ℹ Token ID: 7b84...
 ℹ Status: active
+ℹ Source: Stored User Config (~/.cfcli/config.json)
+```
+
+#### Check Authentication Status (`auth status`)
+Displays the active credential resolution source and stored configuration path:
+```bash
+cfcli auth status
+```
+
+#### Logout & Clear Credentials (`auth logout`)
+Clears stored credentials from `~/.cfcli/config.json`:
+```bash
+cfcli auth logout
 ```
 
 #### View Authenticated Identity (`user:display`)

@@ -25,7 +25,10 @@ ${chalk.bold.yellow('Usage:')}
 ${chalk.bold.yellow('Available Commands & Categories:')}
 
   ${chalk.bold('🔑 Authentication & Identity:')}
-    ${chalk.cyan('auth verify')}            Verify your Cloudflare API token
+    ${chalk.cyan('auth login')}             Authenticate via OAuth 2.0 Authorization Code flow with PKCE
+    ${chalk.cyan('auth verify')}            Verify active API token or exchange authorization code
+    ${chalk.cyan('auth status')}            View current authentication source and configuration
+    ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cfcli/config.json)
     ${chalk.cyan('user:display')}           View account & user profile details (alias: whoami)
 
   ${chalk.bold('🌐 Zones & Domains:')}
@@ -75,20 +78,38 @@ ${chalk.dim('For in-depth help and examples for a specific command, run:')}
 function renderCommandHelp(command: string) {
   switch (command) {
     case 'auth':
+    case 'login':
     case 'verify':
       console.log(`
-${chalk.bold.cyan('Command:')} ${chalk.bold('auth / auth verify')}
-${chalk.dim('Verify credentials and check Cloudflare API Token status & expiration.')}
+${chalk.bold.cyan('Command:')} ${chalk.bold('auth')}
+${chalk.dim('Authentication, OAuth 2.0 Authorization Code flow with PKCE, and token management.')}
+
+${chalk.bold.yellow('Subcommands:')}
+  ${chalk.cyan('auth login')}             Start OAuth 2.0 Authorization Code PKCE login in browser
+  ${chalk.cyan('auth login --manual')}    Manual authorization code entry (remote/headless)
+  ${chalk.cyan('auth verify')}            Verify active API token
+  ${chalk.cyan('auth verify --code <code>')} Exchange auth code and verify in one step
+  ${chalk.cyan('auth status')}            View current authentication source & config
+  ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cfcli/config.json)
 
 ${chalk.bold.yellow('Examples:')}
-  ${chalk.dim('# Verify API Token using .env or environment variable')}
+  ${chalk.dim('# 1. Authenticate via OAuth 2.0 in browser')}
+  ${chalk.green('cfcli auth login')}
+
+  ${chalk.dim('# 2. Authenticate on headless / SSH server')}
+  ${chalk.green('cfcli auth login --manual')}
+
+  ${chalk.dim('# 3. Check active token verification status')}
   ${chalk.green('cfcli auth verify')}
 
-  ${chalk.dim('# Verify an explicitly passed API Token')}
-  ${chalk.green('cfcli auth verify --token v4.0.0-9a8b7c6d5e4f...')}
+  ${chalk.dim('# 4. Exchange an authorization code')}
+  ${chalk.green('cfcli auth verify --code <authCode>')}
 
-  ${chalk.dim('# Test token verification in local offline mode')}
-  ${chalk.green('cfcli auth verify --local')}
+  ${chalk.dim('# 5. Check authentication source and config')}
+  ${chalk.green('cfcli auth status')}
+
+  ${chalk.dim('# 6. Logout and clear credentials')}
+  ${chalk.green('cfcli auth logout')}
 `);
       break;
 
