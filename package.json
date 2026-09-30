@@ -1,5 +1,5 @@
 {
-  "name": "@vikaskumar171020/cff",
+  "name": "@vikaskumar171020/cfcli",
   "version": "0.4.1",
   "description": "Powerful, modern command-line interface for managing Cloudflare resources (DNS, Zones, Workers, KV, R2, Cache, and Security).",
   "main": "dist/index.js",
@@ -17,7 +17,8 @@
     "access": "public"
   },
   "bin": {
-    "cff": "dist/index.js"
+    "cff": "dist/index.js",
+    "cfcli": "dist/index.js"
   },
   "type": "module",
   "scripts": {
