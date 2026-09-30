@@ -485,9 +485,9 @@ Pre-compiled distributions are published under the repository's **Releases** tab
 npm run package
 
 # Artifacts created in build_artifacts/:
-# - cff-v0.3.0-macos.dmg (macOS Installer DMG)
-# - cff-v0.3.0-package.tar.gz (Standalone package)
-# - vikaskumar171020-cff-0.3.0.tgz (NPM package)
+# - cff-v0.3.1-macos.dmg (macOS Installer DMG)
+# - cff-v0.3.1-package.tar.gz (Standalone package)
+# - vikaskumar171020-cff-0.3.1.tgz (NPM package)
 ```
 
 **Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes the DMG, Standalone Tarball, GitHub Packages (NPM registry), and GitHub Container Registry (Docker image) when a tag is pushed or triggered manually.
