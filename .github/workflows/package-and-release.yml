@@ -229,16 +229,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to Public NPM Registry (npmjs.com)
-        if: ${{ ((github.event_name == 'workflow_dispatch' && inputs.publish_npm) || github.event_name == 'push') && env.NPM_TOKEN != '' }}
+        if: ${{ ((github.event_name == 'workflow_dispatch' && inputs.publish_npm) || github.event_name == 'push') && secrets.NPM_TOKEN != '' }}
         run: |
           TGZ_FILE=$(ls -1 release_assets/*.tgz 2>/dev/null | head -n 1)
           if [ -n "$TGZ_FILE" ] && [ -f "$TGZ_FILE" ]; then
             ABS_PATH="$(pwd)/$TGZ_FILE"
             echo "Publishing $ABS_PATH to npmjs.com..."
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             npm publish "$ABS_PATH" --access public --registry=https://registry.npmjs.org/ || echo "Note: Package publish to npmjs.com skipped if version already exists."
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Log in to GitHub Container Registry (ghcr.io)
