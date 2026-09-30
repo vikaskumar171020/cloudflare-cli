@@ -219,10 +219,11 @@ jobs:
       - name: Publish to GitHub Packages (npm registry)
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publish_npm) || github.event_name == 'push' }}
         run: |
-          TGZ_FILE=$(ls release_assets/*.tgz | head -n 1)
-          if [ -f "$TGZ_FILE" ]; then
-            echo "Publishing $TGZ_FILE to GitHub Packages..."
-            npm publish "$TGZ_FILE" --registry=https://npm.pkg.github.com || echo "Note: Package publish to GitHub Packages skipped if version already exists."
+          TGZ_FILE=$(ls -1 release_assets/*.tgz 2>/dev/null | head -n 1)
+          if [ -n "$TGZ_FILE" ] && [ -f "$TGZ_FILE" ]; then
+            ABS_PATH="$(pwd)/$TGZ_FILE"
+            echo "Publishing $ABS_PATH to GitHub Packages..."
+            npm publish "$ABS_PATH" --registry=https://npm.pkg.github.com || echo "Note: Package publish to GitHub Packages skipped if version already exists."
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -230,10 +231,11 @@ jobs:
       - name: Publish to Public NPM Registry (npmjs.com)
         if: ${{ ((github.event_name == 'workflow_dispatch' && inputs.publish_npm) || github.event_name == 'push') && env.NPM_TOKEN != '' }}
         run: |
-          TGZ_FILE=$(ls release_assets/*.tgz | head -n 1)
-          if [ -f "$TGZ_FILE" ]; then
-            echo "Publishing $TGZ_FILE to npmjs.com..."
-            npm publish "$TGZ_FILE" --access public --registry=https://registry.npmjs.org/ || echo "Note: Package publish to npmjs.com skipped if version already exists."
+          TGZ_FILE=$(ls -1 release_assets/*.tgz 2>/dev/null | head -n 1)
+          if [ -n "$TGZ_FILE" ] && [ -f "$TGZ_FILE" ]; then
+            ABS_PATH="$(pwd)/$TGZ_FILE"
+            echo "Publishing $ABS_PATH to npmjs.com..."
+            npm publish "$ABS_PATH" --access public --registry=https://registry.npmjs.org/ || echo "Note: Package publish to npmjs.com skipped if version already exists."
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -268,11 +270,11 @@ jobs:
           echo "Your release is now live across all selected distribution channels:" >> $GITHUB_STEP_SUMMARY
           echo "- **Auto-Bumped Tag**: \`${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **GitHub Releases**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.release_tag }})" >> $GITHUB_STEP_SUMMARY
-          echo "- **macOS DMG Installer**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-macos.dmg\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Standalone Package**: \`cloudflare-cli-${{ needs.version.outputs.release_tag }}-package.tar.gz\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **macOS DMG Installer**: \`cff-${{ needs.version.outputs.release_tag }}-macos.dmg\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Standalone Package**: \`cff-${{ needs.version.outputs.release_tag }}-package.tar.gz\`" >> $GITHUB_STEP_SUMMARY
           if [ "${{ (github.event_name == 'workflow_dispatch' && inputs.publish_npm) || github.event_name == 'push' }}" = "true" ]; then
-            echo "- **Public NPM**: [\`@${{ github.repository_owner }}/cloudflare-cli\`](https://www.npmjs.com/package/@${{ github.repository_owner }}/cloudflare-cli)" >> $GITHUB_STEP_SUMMARY
-            echo "- **GitHub Packages (NPM)**: \`@${{ github.repository_owner }}/cloudflare-cli\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Public NPM**: [\`@${{ github.repository_owner }}/cff\`](https://www.npmjs.com/package/@${{ github.repository_owner }}/cff)" >> $GITHUB_STEP_SUMMARY
+            echo "- **GitHub Packages (NPM)**: \`@${{ github.repository_owner }}/cff\`" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "${{ (github.event_name == 'workflow_dispatch' && inputs.publish_docker) || github.event_name == 'push' }}" = "true" ]; then
             echo "- **GitHub Packages (Docker GHCR)**: \`ghcr.io/${{ github.repository }}:${{ needs.version.outputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
