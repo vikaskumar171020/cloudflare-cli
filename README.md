@@ -1,5 +1,5 @@
 
-# cfcli
+# cff
 
 A modern, fast, and feature-complete Command-Line Interface for managing Cloudflare services (DNS, Zones, Workers, KV, R2, Cache, and Security). Built with TypeScript (ES Modules), Commander.js, and the official Cloudflare Node.js SDK v4.
 
@@ -30,7 +30,7 @@ A modern, fast, and feature-complete Command-Line Interface for managing Cloudfl
 
 ## How the CLI Works
 
-`cfcli` acts as an extensible bridge between terminal operators / CI/CD systems and Cloudflare's REST API v4.
+`cff` acts as an extensible bridge between terminal operators / CI/CD systems and Cloudflare's REST API v4.
 
 ### Execution Lifecycle
 
@@ -45,7 +45,7 @@ sequenceDiagram
     participant SDK as Cloudflare Client (src/lib/cloudflare-client.ts)
     participant CF as Cloudflare API v4
 
-    User->>CLI: Execute Command (e.g., cf-cli dns create ...)
+    User->>CLI: Execute Command (e.g., cff dns create ...)
     CLI->>Config: loadConfig(flags, env, .env)
     Config-->>CLI: Validated Configuration (token, format, ids)
 
@@ -107,15 +107,15 @@ Get categorized command overviews, quickstart guides, and practical examples:
 
 ```bash
 # View complete categorized command catalog and quickstart examples
-cfcli help
+cff help
 
 # View in-depth usage, options, and examples for a specific command
-cfcli help dns
-cfcli help zones
-cfcli help auth
-cfcli help workers
-cfcli help kv
-cfcli help r2
+cff help dns
+cff help zones
+cff help auth
+cff help workers
+cff help kv
+cff help r2
 ```
 
 ---
@@ -128,51 +128,87 @@ Manage and verify your Cloudflare credentials with OAuth 2.0 Authorization Code 
 Starts the interactive browser authentication flow with PKCE and a local callback listener:
 ```bash
 # Interactive browser login with PKCE
-cfcli auth login
+cff auth login
 
 # Headless / remote server login (manual code entry)
-cfcli auth login --manual
+cff auth login --manual
 
 # Offline mock simulation login
-cfcli auth login --local
+cff auth login --local
 ```
 
 #### Verify Active Token or Auth Code (`auth verify`)
 Tests whether the configured API Token is active and valid, or exchanges an authorization code in one step:
 ```bash
 # Verify currently active token
-cfcli auth verify
+cff auth verify
 
 # Exchange authorization code and verify in one step
-cfcli auth verify --code <authCode>
+cff auth verify --code <authCode>
 
 # Verify explicit token
-cfcli auth verify --token <custom_token>
+cff auth verify --token <custom_token>
 ```
 *Output:*
 ```text
 ✔ API Token is valid!
 ℹ Token ID: 7b84...
 ℹ Status: active
-ℹ Source: Stored User Config (~/.cfcli/config.json)
+ℹ Source: Stored User Config (~/.cff/config.json)
 ```
 
 #### Check Authentication Status (`auth status`)
 Displays the active credential resolution source and stored configuration path:
 ```bash
-cfcli auth status
+cff auth status
+```
+
+#### Audit Token Access & Permissions (`auth permissions` / `permissions`)
+Performs a comprehensive audit of all permissions, policies, and accessible Cloudflare resources associated with your active token:
+```bash
+# Audit token access across all Cloudflare services
+cff auth permissions
+
+# Output audit results as machine-readable JSON
+cff auth permissions --output json
+
+# Scope audit to specific zone or account
+cff auth permissions --zone <zoneId> --account <accountId>
+```
+*Output:*
+```text
+🛡️  Cloudflare API Token Permissions & Access Audit
+─────────────────────────────────────────────────────────────────
+  Token ID:     7b84f3...
+  Status:       ✔ active
+  Source:       Environment Variable ($CLOUDFLARE_API_TOKEN)
+  Expires On:   2099-12-31T23:59:59Z
+─────────────────────────────────────────────────────────────────
+
+🔍 Probed Service Access Matrix:
+┌─────────────────────┬─────────────────────┬─────────────┬──────────────────────────────────────────────────────────────┐
+│ Service             │ Category            │ Access      │ Details / Summary                                            │
+├─────────────────────┼─────────────────────┼─────────────┼──────────────────────────────────────────────────────────────┤
+│ User Profile        │ Identity            │ ✔ Granted   │ Read access granted (John Doe)                               │
+│ Accounts            │ Identity & Access   │ ✔ Granted   │ 2 account(s) accessible                                      │
+│ Zones & Domains     │ Network & DNS       │ ✔ Granted   │ 5 zone(s) accessible                                         │
+│ DNS Records         │ Network & DNS       │ ✔ Granted   │ Read access granted on zone 023e105f... (12 records)         │
+│ Workers Scripts     │ Serverless          │ ✔ Granted   │ Read access granted on account 1a2b3c... (4 workers)         │
+│ Workers KV          │ Storage             │ ✔ Granted   │ Read access granted on account 1a2b3c... (2 namespaces)      │
+│ R2 Object Storage   │ Storage             │ ✖ Denied    │ No r2:read access on account 1a2b3c...                       │
+└─────────────────────┴─────────────────────┴─────────────┴──────────────────────────────────────────────────────────────┘
 ```
 
 #### Logout & Clear Credentials (`auth logout`)
-Clears stored credentials from `~/.cfcli/config.json`:
+Clears stored credentials from `~/.cff/config.json`:
 ```bash
-cfcli auth logout
+cff auth logout
 ```
 
 #### View Authenticated Identity (`user:display`)
 Displays account owner details, user ID, country, and 2FA status (alias: `whoami`).
 ```bash
-cfcli user:display
+cff user:display
 ```
 *Output:*
 ```text
@@ -194,13 +230,13 @@ Manage domains and zones associated with your Cloudflare account.
 Lists all zones with their status, plan tier, and account affiliation.
 ```bash
 # List all zones
-cfcli zones list
+cff zones list
 
 # Filter by domain name
-cfcli zones list --name example.com
+cff zones list --name example.com
 
 # Filter by status
-cfcli zones list --status active
+cff zones list --status active
 ```
 *Table Output:*
 ```text
@@ -215,7 +251,7 @@ cfcli zones list --status active
 #### Get Zone Details
 Retrieves full details for a single zone, including nameservers.
 ```bash
-cfcli zones get <zoneId>
+cff zones get <zoneId>
 ```
 
 ---
@@ -227,13 +263,13 @@ Manage DNS records for your domains (A, AAAA, CNAME, TXT, MX, etc.).
 #### List DNS Records
 ```bash
 # List all records for a zone
-cfcli dns list --zone <zoneId>
+cff dns list --zone <zoneId>
 
 # Filter by record type (A, CNAME, TXT)
-cfcli dns list -z <zoneId> --type A
+cff dns list -z <zoneId> --type A
 
 # Filter by record hostname
-cfcli dns list -z <zoneId> --name api.example.com
+cff dns list -z <zoneId> --name api.example.com
 ```
 *Table Output:*
 ```text
@@ -249,7 +285,7 @@ cfcli dns list -z <zoneId> --name api.example.com
 #### Create a DNS Record
 ```bash
 # Create an A record proxied through Cloudflare (Orange Cloud)
-cfcli dns create \
+cff dns create \
   --zone <zoneId> \
   --type A \
   --name api.example.com \
@@ -257,7 +293,7 @@ cfcli dns create \
   --proxied
 
 # Create a CNAME record without proxy
-cfcli dns create \
+cff dns create \
   -z <zoneId> \
   -t CNAME \
   -n blog.example.com \
@@ -266,7 +302,7 @@ cfcli dns create \
 
 #### Delete a DNS Record
 ```bash
-cfcli dns delete <recordId> --zone <zoneId>
+cff dns delete <recordId> --zone <zoneId>
 ```
 
 ---
@@ -277,7 +313,7 @@ Manage serverless Cloudflare Workers scripts.
 
 #### List Worker Scripts
 ```bash
-cfcli workers list --account <accountId>
+cff workers list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -297,7 +333,7 @@ Manage globally distributed key-value storage namespaces.
 
 #### List KV Namespaces
 ```bash
-cfcli kv list --account <accountId>
+cff kv list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -317,7 +353,7 @@ Manage S3-compatible Cloudflare R2 storage buckets without egress fees.
 
 #### List R2 Buckets
 ```bash
-cfcli r2 list --account <accountId>
+cff r2 list --account <accountId>
 ```
 *Table Output:*
 ```text
@@ -350,9 +386,9 @@ npm run build
 # Run via npm start
 npm start -- user:display
 
-# Or link globally to run 'cfcli' anywhere
+# Or link globally to run 'cff' anywhere
 npm link
-cfcli --version
+cff --version
 ```
 
 ### Docker Containerized Mode
@@ -379,10 +415,10 @@ Using `--output json` outputs pure, unformatted JSON payloads:
 
 ```bash
 # Extract all active domain names using jq
-cfcli zones list --output json | jq -r '.[].name'
+cff zones list --output json | jq -r '.[].name'
 
 # Extract DNS record IDs for a specific hostname
-cfcli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="api.example.com") | .id'
+cff dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="api.example.com") | .id'
 ```
 
 ---
@@ -406,25 +442,24 @@ cfcli dns list -z $ZONE_ID --output json | jq -r '.[] | select(.name=="api.examp
 
 ## 📦 Installation & Releases
 
-`cfcli` is distributed across all major package ecosystems:
+`cff` is distributed across all major package ecosystems:
 
 ### 1. Install via NPM (npmjs.com)
 Install globally or execute instantly via `npx`:
 ```bash
 # Global install via npm
-npm install -g @vikaskumar171020/cfcli
+npm install -g @vikaskumar171020/cff
 
 # Instant execution with npx (no install needed)
-npx @vikaskumar171020/cfcli user:display
+npx @vikaskumar171020/cff user:display
 
 # Run CLI
-cfcli --help
-cf-cli user:display
+cff --help
 ```
 
 ### 2. Install via GitHub Packages
 ```bash
-npm install -g @vikaskumar171020/cfcli --registry=https://npm.pkg.github.com
+npm install -g @vikaskumar171020/cff --registry=https://npm.pkg.github.com
 ```
 
 ### 3. Run via GitHub Container Registry (Docker)
@@ -433,10 +468,10 @@ Pull and execute directly from GitHub Packages (GHCR) without needing Node.js in
 # Execute directly from GHCR
 docker run --rm -it \
   -e CLOUDFLARE_API_TOKEN="your_token_here" \
-  ghcr.io/vikaskumar171020/cfcli:latest user:display
+  ghcr.io/vikaskumar171020/cff:latest user:display
 
 # Or run in offline mock mode
-docker run --rm -it ghcr.io/vikaskumar171020/cfcli:latest --local user:display
+docker run --rm -it ghcr.io/vikaskumar171020/cff:latest --local user:display
 ```
 
 ### 4. Download from GitHub Releases
@@ -450,9 +485,9 @@ Pre-compiled distributions are published under the repository's **Releases** tab
 npm run package
 
 # Artifacts created in build_artifacts/:
-# - cfcli-v0.2.4-macos.dmg (macOS Installer DMG)
-# - cfcli-v0.2.4-package.tar.gz (Standalone package)
-# - vikaskumar171020-cfcli-0.2.4.tgz (NPM package)
+# - cff-v0.3.0-macos.dmg (macOS Installer DMG)
+# - cff-v0.3.0-package.tar.gz (Standalone package)
+# - vikaskumar171020-cff-0.3.0.tgz (NPM package)
 ```
 
 **Automated CI/CD**: The GitHub Actions workflow in [`.github/workflows/package-and-release.yml`](.github/workflows/package-and-release.yml) automatically builds and publishes the DMG, Standalone Tarball, GitHub Packages (NPM registry), and GitHub Container Registry (Docker image) when a tag is pushed or triggered manually.

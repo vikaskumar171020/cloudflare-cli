@@ -17,18 +17,19 @@ export function registerHelpCommand(program: Command) {
 
 function renderRootHelp() {
   console.log(`
-${chalk.bold.cyan('Cloudflare CLI (cf-cli)')} - ${chalk.dim('Modern CLI tool for managing Cloudflare resources')}
+${chalk.bold.cyan('Cloudflare CLI (cff)')} - ${chalk.dim('Modern CLI tool for managing Cloudflare resources')}
 
 ${chalk.bold.yellow('Usage:')}
-  ${chalk.green('cfcli')} ${chalk.magenta('[options]')} ${chalk.cyan('<command>')} ${chalk.dim('[subcommand] [flags]')}
+  ${chalk.green('cff')} ${chalk.magenta('[options]')} ${chalk.cyan('<command>')} ${chalk.dim('[subcommand] [flags]')}
 
 ${chalk.bold.yellow('Available Commands & Categories:')}
 
   ${chalk.bold('🔑 Authentication & Identity:')}
     ${chalk.cyan('auth login')}             Authenticate via OAuth 2.0 Authorization Code flow with PKCE
     ${chalk.cyan('auth verify')}            Verify active API token or exchange authorization code
+    ${chalk.cyan('auth permissions')}       Audit active token permissions, scopes & access matrix
     ${chalk.cyan('auth status')}            View current authentication source and configuration
-    ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cfcli/config.json)
+    ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cff/config.json)
     ${chalk.cyan('user:display')}           View account & user profile details (alias: whoami)
 
   ${chalk.bold('🌐 Zones & Domains:')}
@@ -56,22 +57,25 @@ ${chalk.bold.yellow('Global Flags:')}
 
 ${chalk.bold.yellow('Quickstart Examples:')}
   ${chalk.dim('# 1. Test offline mock mode')}
-  ${chalk.green('cfcli --local user:display')}
+  ${chalk.green('cff --local user:display')}
 
-  ${chalk.dim('# 2. List zones in table format')}
-  ${chalk.green('cfcli zones list')}
+  ${chalk.dim('# 2. Audit all access permissions that token has')}
+  ${chalk.green('cff auth permissions')}
 
-  ${chalk.dim('# 3. List DNS records for a specific zone')}
-  ${chalk.green('cfcli dns list -z 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.dim('# 3. List zones in table format')}
+  ${chalk.green('cff zones list')}
 
-  ${chalk.dim('# 4. Create a proxied A record')}
-  ${chalk.green('cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
+  ${chalk.dim('# 4. List DNS records for a specific zone')}
+  ${chalk.green('cff dns list -z 023e105f4ecef8ad9ca31a8372d0c353')}
 
-  ${chalk.dim('# 5. Query data formatted as pure JSON')}
-  ${chalk.green('cfcli zones list -o json')}
+  ${chalk.dim('# 5. Create a proxied A record')}
+  ${chalk.green('cff dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
+
+  ${chalk.dim('# 6. Query data formatted as pure JSON')}
+  ${chalk.green('cff zones list -o json')}
 
 ${chalk.dim('For in-depth help and examples for a specific command, run:')}
-  ${chalk.cyan('cfcli help <command>')}  ${chalk.dim('(e.g. cfcli help dns)')}
+  ${chalk.cyan('cff help <command>')}  ${chalk.dim('(e.g. cff help dns)')}
 `);
 }
 
@@ -80,6 +84,8 @@ function renderCommandHelp(command: string) {
     case 'auth':
     case 'login':
     case 'verify':
+    case 'permissions':
+    case 'access':
       console.log(`
 ${chalk.bold.cyan('Command:')} ${chalk.bold('auth')}
 ${chalk.dim('Authentication, OAuth 2.0 Authorization Code flow with PKCE, and token management.')}
@@ -89,27 +95,31 @@ ${chalk.bold.yellow('Subcommands:')}
   ${chalk.cyan('auth login --manual')}    Manual authorization code entry (remote/headless)
   ${chalk.cyan('auth verify')}            Verify active API token
   ${chalk.cyan('auth verify --code <code>')} Exchange auth code and verify in one step
+  ${chalk.cyan('auth permissions')}       Audit all access permissions and resource scopes
   ${chalk.cyan('auth status')}            View current authentication source & config
-  ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cfcli/config.json)
+  ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cff/config.json)
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# 1. Authenticate via OAuth 2.0 in browser')}
-  ${chalk.green('cfcli auth login')}
+  ${chalk.green('cff auth login')}
 
   ${chalk.dim('# 2. Authenticate on headless / SSH server')}
-  ${chalk.green('cfcli auth login --manual')}
+  ${chalk.green('cff auth login --manual')}
 
   ${chalk.dim('# 3. Check active token verification status')}
-  ${chalk.green('cfcli auth verify')}
+  ${chalk.green('cff auth verify')}
 
-  ${chalk.dim('# 4. Exchange an authorization code')}
-  ${chalk.green('cfcli auth verify --code <authCode>')}
+  ${chalk.dim('# 4. Audit all access that the token has across services')}
+  ${chalk.green('cff auth permissions')}
 
-  ${chalk.dim('# 5. Check authentication source and config')}
-  ${chalk.green('cfcli auth status')}
+  ${chalk.dim('# 5. Audit token permissions in JSON format')}
+  ${chalk.green('cff auth permissions --output json')}
 
-  ${chalk.dim('# 6. Logout and clear credentials')}
-  ${chalk.green('cfcli auth logout')}
+  ${chalk.dim('# 6. Check authentication source and config')}
+  ${chalk.green('cff auth status')}
+
+  ${chalk.dim('# 7. Logout and clear credentials')}
+  ${chalk.green('cff auth logout')}
 `);
       break;
 
@@ -122,13 +132,13 @@ ${chalk.dim('Display authenticated user profile, user ID, name/country, and 2FA 
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# View current user details')}
-  ${chalk.green('cfcli user:display')}
+  ${chalk.green('cff user:display')}
 
   ${chalk.dim('# Output user details as JSON')}
-  ${chalk.green('cfcli user:display --output json')}
+  ${chalk.green('cff user:display --output json')}
 
   ${chalk.dim('# Test user:display in local offline mode')}
-  ${chalk.green('cfcli user:display -l')}
+  ${chalk.green('cff user:display -l')}
 `);
       break;
 
@@ -143,19 +153,19 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List all active domain zones')}
-  ${chalk.green('cfcli zones list')}
+  ${chalk.green('cff zones list')}
 
   ${chalk.dim('# Filter zones by name')}
-  ${chalk.green('cfcli zones list --name example.com')}
+  ${chalk.green('cff zones list --name example.com')}
 
   ${chalk.dim('# Filter zones by status')}
-  ${chalk.green('cfcli zones list --status active')}
+  ${chalk.green('cff zones list --status active')}
 
   ${chalk.dim('# Get nameservers and plan details for a specific zone')}
-  ${chalk.green('cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.green('cff zones get 023e105f4ecef8ad9ca31a8372d0c353')}
 
   ${chalk.dim('# List zones in JSON format')}
-  ${chalk.green('cfcli zones list -o json')}
+  ${chalk.green('cff zones list -o json')}
 `);
       break;
 
@@ -171,22 +181,22 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# 1. List all records for a zone')}
-  ${chalk.green('cfcli dns list --zone 023e105f4ecef8ad9ca31a8372d0c353')}
+  ${chalk.green('cff dns list --zone 023e105f4ecef8ad9ca31a8372d0c353')}
 
   ${chalk.dim('# 2. Filter DNS records by type (e.g. A records)')}
-  ${chalk.green('cfcli dns list -z 023e105f -t A')}
+  ${chalk.green('cff dns list -z 023e105f -t A')}
 
   ${chalk.dim('# 3. Filter DNS records by hostname')}
-  ${chalk.green('cfcli dns list -z 023e105f -n api.example.com')}
+  ${chalk.green('cff dns list -z 023e105f -n api.example.com')}
 
   ${chalk.dim('# 4. Create an A record with Cloudflare Proxy enabled (Orange Cloud)')}
-  ${chalk.green('cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
+  ${chalk.green('cff dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied')}
 
   ${chalk.dim('# 5. Create a CNAME record with custom TTL')}
-  ${chalk.green('cfcli dns create -z 023e105f -t CNAME -n docs.example.com -c custom.domain.io --ttl 300')}
+  ${chalk.green('cff dns create -z 023e105f -t CNAME -n docs.example.com -c custom.domain.io --ttl 300')}
 
   ${chalk.dim('# 6. Delete a DNS record')}
-  ${chalk.green('cfcli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f')}
+  ${chalk.green('cff dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f')}
 `);
       break;
 
@@ -200,13 +210,13 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List Workers scripts in an account')}
-  ${chalk.green('cfcli workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cff workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Output Workers scripts list as JSON')}
-  ${chalk.green('cfcli workers list -a 1a2b3c4d -o json')}
+  ${chalk.green('cff workers list -a 1a2b3c4d -o json')}
 
   ${chalk.dim('# Test workers list in local offline mode')}
-  ${chalk.green('cfcli workers list --local -a mock-acc-001')}
+  ${chalk.green('cff workers list --local -a mock-acc-001')}
 `);
       break;
 
@@ -220,10 +230,10 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List all KV namespaces')}
-  ${chalk.green('cfcli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cff kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Test KV list in local offline mode')}
-  ${chalk.green('cfcli kv list --local -a mock-acc-001')}
+  ${chalk.green('cff kv list --local -a mock-acc-001')}
 `);
       break;
 
@@ -237,19 +247,19 @@ ${chalk.bold.yellow('Subcommands:')}
 
 ${chalk.bold.yellow('Examples:')}
   ${chalk.dim('# List R2 storage buckets')}
-  ${chalk.green('cfcli r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
+  ${chalk.green('cff r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d')}
 
   ${chalk.dim('# Output R2 buckets as JSON')}
-  ${chalk.green('cfcli r2 list -a 1a2b3c4d -o json')}
+  ${chalk.green('cff r2 list -a 1a2b3c4d -o json')}
 
   ${chalk.dim('# Test R2 buckets in local offline mode')}
-  ${chalk.green('cfcli r2 list --local -a mock-acc-001')}
+  ${chalk.green('cff r2 list --local -a mock-acc-001')}
 `);
       break;
 
     default:
       console.log(chalk.red(`Unknown command: '${command}'.`));
-      console.log(`Run ${chalk.cyan('cfcli help')} to see all available commands.`);
+      console.log(`Run ${chalk.cyan('cff help')} to see all available commands.`);
       process.exitCode = 1;
       break;
   }

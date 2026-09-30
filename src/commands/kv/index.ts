@@ -12,8 +12,8 @@ export function registerKvCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli kv list --local -a mock-acc-001
+  $ cff kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff kv list --local -a mock-acc-001
 `
     );
 
@@ -25,9 +25,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli kv list -a 1a2b3c4d -o json
-  $ cfcli kv list --local -a mock-acc-001
+  $ cff kv list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff kv list -a 1a2b3c4d -o json
+  $ cff kv list --local -a mock-acc-001
 `
     )
     .action(async (options) => {

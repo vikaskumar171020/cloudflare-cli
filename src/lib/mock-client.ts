@@ -52,6 +52,14 @@ export function createMockCloudflareClient() {
     },
   ];
 
+  const mockAccounts = [
+    {
+      id: 'mock-acc-001',
+      name: 'Local Dev Account',
+      type: 'standard',
+    },
+  ];
+
   return {
     user: {
       tokens: {
@@ -59,15 +67,49 @@ export function createMockCloudflareClient() {
           id: 'mock-token-id-987654321',
           status: 'active',
           expires_on: '2099-12-31T23:59:59Z',
+          not_before: '2024-01-01T00:00:00Z',
+        }),
+        get: async (params: any) => ({
+          id: typeof params === 'string' ? params : params?.token_id || 'mock-token-id-987654321',
+          name: 'CLI Full Access Token',
+          status: 'active',
+          expires_on: '2099-12-31T23:59:59Z',
+          policies: [
+            {
+              id: 'policy-1',
+              effect: 'allow',
+              resources: { 'com.cloudflare.api.account.zone.*': '*' },
+              permission_groups: [
+                { id: 'dns_write', name: 'DNS:Edit' },
+                { id: 'zone_read', name: 'Zone:Read' },
+              ],
+            },
+            {
+              id: 'policy-2',
+              effect: 'allow',
+              resources: { 'com.cloudflare.api.account.*': '*' },
+              permission_groups: [
+                { id: 'workers_write', name: 'Workers Scripts:Edit' },
+                { id: 'kv_write', name: 'Workers KV Storage:Edit' },
+                { id: 'r2_write', name: 'Workers R2 Storage:Edit' },
+              ],
+            },
+          ],
         }),
       },
       get: async () => ({
         id: 'mock-user-123456',
         first_name: 'Local',
         last_name: 'Developer',
+        email: 'developer@example.com',
         country: 'US',
         two_factor_authentication_enabled: true,
         suspended: false,
+      }),
+    },
+    accounts: {
+      list: async () => ({
+        result: mockAccounts,
       }),
     },
     zones: {

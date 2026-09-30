@@ -56,7 +56,7 @@ describe('OAuthManager & PKCE', () => {
 });
 
 describe('UserConfigManager & Credential Persistence', () => {
-  const testDir = path.join(os.tmpdir(), `cfcli-test-${Date.now()}`);
+  const testDir = path.join(os.tmpdir(), `cff-test-${Date.now()}`);
 
   beforeEach(() => {
     UserConfigManager.setCustomConfigDir(testDir);
@@ -95,7 +95,7 @@ describe('UserConfigManager & Credential Persistence', () => {
 });
 
 describe('Auth CLI Commands', () => {
-  const testDir = path.join(os.tmpdir(), `cfcli-auth-cmd-${Date.now()}`);
+  const testDir = path.join(os.tmpdir(), `cff-auth-cmd-${Date.now()}`);
 
   beforeEach(() => {
     UserConfigManager.setCustomConfigDir(testDir);
@@ -116,7 +116,7 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'auth', 'login'])
+      cli.parseAsync(['node', 'cff', '--local', 'auth', 'login'])
     ).resolves.not.toThrow();
 
     const saved = UserConfigManager.readUserConfig();
@@ -128,7 +128,7 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'login'])
+      cli.parseAsync(['node', 'cff', '--local', 'login'])
     ).resolves.not.toThrow();
 
     const saved = UserConfigManager.readUserConfig();
@@ -139,7 +139,7 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'login', 'mock-direct-token-123'])
+      cli.parseAsync(['node', 'cff', '--local', 'login', 'mock-direct-token-123'])
     ).resolves.not.toThrow();
 
     const saved = UserConfigManager.readUserConfig();
@@ -150,7 +150,7 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'auth', 'verify', '--code', 'custom-auth-code'])
+      cli.parseAsync(['node', 'cff', '--local', 'auth', 'verify', '--code', 'custom-auth-code'])
     ).resolves.not.toThrow();
   });
 
@@ -158,7 +158,23 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'auth', 'status'])
+      cli.parseAsync(['node', 'cff', '--local', 'auth', 'status'])
+    ).resolves.not.toThrow();
+  });
+
+  it('should execute auth permissions command in local mode', async () => {
+    const cli = createCli();
+    cli.exitOverride();
+    await expect(
+      cli.parseAsync(['node', 'cff', '--local', 'auth', 'permissions'])
+    ).resolves.not.toThrow();
+  });
+
+  it('should execute auth permissions with json output', async () => {
+    const cli = createCli();
+    cli.exitOverride();
+    await expect(
+      cli.parseAsync(['node', 'cff', '--local', '-o', 'json', 'auth', 'permissions'])
     ).resolves.not.toThrow();
   });
 
@@ -169,7 +185,7 @@ describe('Auth CLI Commands', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', 'auth', 'logout'])
+      cli.parseAsync(['node', 'cff', 'auth', 'logout'])
     ).resolves.not.toThrow();
 
     expect(UserConfigManager.readUserConfig()).toEqual({});

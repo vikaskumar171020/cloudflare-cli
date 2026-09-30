@@ -12,9 +12,9 @@ export function registerZonesCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli zones list
-  $ cfcli zones list --name example.com
-  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353
+  $ cff zones list
+  $ cff zones list --name example.com
+  $ cff zones get 023e105f4ecef8ad9ca31a8372d0c353
 `
     );
 
@@ -27,11 +27,11 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli zones list
-  $ cfcli zones list --name example.com
-  $ cfcli zones list --status active
-  $ cfcli zones list --output json
-  $ cfcli zones list --local
+  $ cff zones list
+  $ cff zones list --name example.com
+  $ cff zones list --status active
+  $ cff zones list --output json
+  $ cff zones list --local
 `
     )
     .action(async (options) => {
@@ -72,8 +72,8 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353
-  $ cfcli zones get 023e105f4ecef8ad9ca31a8372d0c353 --output json
+  $ cff zones get 023e105f4ecef8ad9ca31a8372d0c353
+  $ cff zones get 023e105f4ecef8ad9ca31a8372d0c353 --output json
 `
     )
     .action(async (zoneId) => {

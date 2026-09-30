@@ -12,8 +12,8 @@ export function registerWorkersCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli workers list --local -a mock-acc-001
+  $ cff workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff workers list --local -a mock-acc-001
 `
     );
 
@@ -25,9 +25,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli workers list -a 1a2b3c4d -o json
-  $ cfcli workers list --local -a mock-acc-001
+  $ cff workers list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff workers list -a 1a2b3c4d -o json
+  $ cff workers list --local -a mock-acc-001
 `
     )
     .action(async (options) => {

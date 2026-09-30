@@ -42,7 +42,7 @@ sequenceDiagram
     participant SDK as Cloudflare Client (src/lib/cloudflare-client.ts)
     participant CF as Cloudflare API v4
 
-    User->>CLI: Execute Command (e.g., cf-cli dns create ...)
+    User->>CLI: Execute Command (e.g., cff dns create ...)
     CLI->>Config: loadConfig(flags, env, .env)
     Config-->>CLI: Validated Configuration (token, format, ids)
 

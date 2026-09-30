@@ -90,7 +90,7 @@ npm link
 
 # 3. Now run the CLI binary directly from any terminal window
 cloudflare-cli --help
-cf-cli user:display
+cff user:display
 cloudflare-cli dns list -z <zoneId>
 
 # 4. When finished, you can unlink it

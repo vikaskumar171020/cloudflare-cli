@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { createCli } from '../src/cli.js';
 
-describe('cfcli', () => {
+describe('cff', () => {
   it('should initialize commander instance with correct name and commands', () => {
     const cli = createCli();
-    expect(cli.name()).toBe('cfcli');
+    expect(cli.name()).toBe('cff');
 
     const commandNames = cli.commands.map((cmd) => cmd.name());
     expect(commandNames).toContain('auth');
@@ -20,7 +20,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride(); // Prevent process.exit in tests
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'auth', 'verify'])
+      cli.parseAsync(['node', 'cff', '--local', 'auth', 'verify'])
     ).resolves.not.toThrow();
   });
 
@@ -28,7 +28,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'user:display'])
+      cli.parseAsync(['node', 'cff', '--local', 'user:display'])
     ).resolves.not.toThrow();
   });
 
@@ -36,7 +36,27 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', '-o', 'json', 'zones', 'list'])
+      cli.parseAsync(['node', 'cff', '--local', '-o', 'json', 'zones', 'list'])
+    ).resolves.not.toThrow();
+  });
+
+  it('should accept direct --json flag on any command', async () => {
+    const cli1 = createCli();
+    cli1.exitOverride();
+    await expect(
+      cli1.parseAsync(['node', 'cff', 'zones', 'list', '--local', '--json'])
+    ).resolves.not.toThrow();
+
+    const cli2 = createCli();
+    cli2.exitOverride();
+    await expect(
+      cli2.parseAsync(['node', 'cff', 'user:display', '--local', '--json'])
+    ).resolves.not.toThrow();
+
+    const cli3 = createCli();
+    cli3.exitOverride();
+    await expect(
+      cli3.parseAsync(['node', 'cff', 'dns', 'list', '--local', '-z', 'mock-zone-001', '--json'])
     ).resolves.not.toThrow();
   });
 
@@ -44,7 +64,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'dns', 'list', '-z', 'mock-zone-001'])
+      cli.parseAsync(['node', 'cff', '--local', 'dns', 'list', '-z', 'mock-zone-001'])
     ).resolves.not.toThrow();
   });
 
@@ -52,7 +72,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'workers', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cff', '--local', 'workers', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -60,7 +80,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'kv', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cff', '--local', 'kv', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -68,7 +88,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', '--local', 'r2', 'list', '-a', 'mock-acc-001'])
+      cli.parseAsync(['node', 'cff', '--local', 'r2', 'list', '-a', 'mock-acc-001'])
     ).resolves.not.toThrow();
   });
 
@@ -76,7 +96,7 @@ describe('cfcli', () => {
     const cli = createCli();
     cli.exitOverride();
     await expect(
-      cli.parseAsync(['node', 'cfcli', 'help'])
+      cli.parseAsync(['node', 'cff', 'help'])
     ).resolves.not.toThrow();
   });
 
@@ -86,7 +106,7 @@ describe('cfcli', () => {
       const cli = createCli();
       cli.exitOverride();
       await expect(
-        cli.parseAsync(['node', 'cfcli', 'help', sub])
+        cli.parseAsync(['node', 'cff', 'help', sub])
       ).resolves.not.toThrow();
     }
   });

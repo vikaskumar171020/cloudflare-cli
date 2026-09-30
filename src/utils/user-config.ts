@@ -14,8 +14,8 @@ export interface UserAuthConfig {
 }
 
 export class UserConfigManager {
-  private static configDir = path.join(os.homedir(), '.cfcli');
-  private static configFile = path.join(os.homedir(), '.cfcli', 'config.json');
+  private static configDir = path.join(os.homedir(), '.cff');
+  private static configFile = path.join(os.homedir(), '.cff', 'config.json');
 
   public static getConfigPath(): string {
     return this.configFile;
@@ -27,17 +27,24 @@ export class UserConfigManager {
   }
 
   public static resetConfigDir(): void {
-    this.configDir = path.join(os.homedir(), '.cfcli');
-    this.configFile = path.join(os.homedir(), '.cfcli', 'config.json');
+    this.configDir = path.join(os.homedir(), '.cff');
+    this.configFile = path.join(os.homedir(), '.cff', 'config.json');
   }
 
   public static readUserConfig(): UserAuthConfig {
     try {
-      if (!fs.existsSync(this.configFile)) {
-        return {};
+      if (fs.existsSync(this.configFile)) {
+        const raw = fs.readFileSync(this.configFile, 'utf-8');
+        return JSON.parse(raw) as UserAuthConfig;
       }
-      const raw = fs.readFileSync(this.configFile, 'utf-8');
-      return JSON.parse(raw) as UserAuthConfig;
+      if (this.configDir === path.join(os.homedir(), '.cff')) {
+        const legacyConfigFile = path.join(os.homedir(), '.cfcli', 'config.json');
+        if (fs.existsSync(legacyConfigFile)) {
+          const raw = fs.readFileSync(legacyConfigFile, 'utf-8');
+          return JSON.parse(raw) as UserAuthConfig;
+        }
+      }
+      return {};
     } catch {
       return {};
     }
@@ -68,6 +75,12 @@ export class UserConfigManager {
     try {
       if (fs.existsSync(this.configFile)) {
         fs.unlinkSync(this.configFile);
+      }
+      if (this.configDir === path.join(os.homedir(), '.cff')) {
+        const legacyConfigFile = path.join(os.homedir(), '.cfcli', 'config.json');
+        if (fs.existsSync(legacyConfigFile)) {
+          fs.unlinkSync(legacyConfigFile);
+        }
       }
     } catch (error) {
       throw new Error(`Failed to remove user config: ${(error as Error).message}`);

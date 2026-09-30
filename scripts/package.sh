@@ -6,7 +6,7 @@ set -euo pipefail
 # ==============================================================================
 
 VERSION=$(node -p "require('./package.json').version")
-APP_NAME="cfcli"
+APP_NAME="cff"
 BUILD_DIR="build_artifacts"
 STAGING_DIR="${BUILD_DIR}/staging"
 DMG_NAME="${APP_NAME}-v${VERSION}-macos.dmg"
@@ -34,47 +34,43 @@ cp package.json package-lock.json README.md LICENSE "${STAGING_DIR}/${APP_NAME}/
 (cd "${STAGING_DIR}/${APP_NAME}" && npm ci --omit=dev --silent)
 
 # Create launcher binary wrapper
-cat << 'EOF' > "${STAGING_DIR}/${APP_NAME}/cfcli"
+cat << 'EOF' > "${STAGING_DIR}/${APP_NAME}/cff"
 #!/usr/bin/env bash
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec node "${DIR}/dist/index.js" "$@"
 EOF
-chmod +x "${STAGING_DIR}/${APP_NAME}/cfcli"
-
-# Create symlink for cf-cli
-ln -sf "cfcli" "${STAGING_DIR}/${APP_NAME}/cf-cli"
+chmod +x "${STAGING_DIR}/${APP_NAME}/cff"
 
 # Create installer script for macOS/Linux
 cat << 'EOF' > "${STAGING_DIR}/install.sh"
 #!/usr/bin/env bash
 set -e
-INSTALL_DIR="/usr/local/lib/cfcli"
+INSTALL_DIR="/usr/local/lib/cff"
 BIN_DIR="/usr/local/bin"
 
-echo "Installing Cloudflare CLI (cfcli)..."
+echo "Installing Cloudflare CLI (cff)..."
 sudo mkdir -p "${INSTALL_DIR}" "${BIN_DIR}"
-sudo cp -R cfcli/* "${INSTALL_DIR}/"
-sudo ln -sf "${INSTALL_DIR}/cfcli" "${BIN_DIR}/cfcli"
-sudo ln -sf "${INSTALL_DIR}/cf-cli" "${BIN_DIR}/cf-cli"
+sudo cp -R cff/* "${INSTALL_DIR}/"
+sudo ln -sf "${INSTALL_DIR}/cff" "${BIN_DIR}/cff"
 
-echo "✔ Cloudflare CLI (cfcli) successfully installed to ${BIN_DIR}/cfcli"
-echo "Run 'cfcli --help' to get started."
+echo "✔ Cloudflare CLI (cff) successfully installed to ${BIN_DIR}/cff"
+echo "Run 'cff --help' to get started."
 EOF
 chmod +x "${STAGING_DIR}/install.sh"
 
 # Add README for DMG / Package users
 cat << EOF > "${STAGING_DIR}/README.txt"
-Cloudflare CLI (cfcli) v${VERSION}
+Cloudflare CLI (cff) v${VERSION}
 ===================================
 
 Installation:
 1. Double-click or run ./install.sh from Terminal.
    OR
-2. Copy the 'cfcli' folder to your desired path and add it to your PATH.
+2. Copy the 'cff' folder to your desired path and add it to your PATH.
 
 Usage:
-  cfcli --help
-  cfcli --local user:display
+  cff --help
+  cff --local user:display
 
 License: MIT
 EOF

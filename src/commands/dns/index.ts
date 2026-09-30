@@ -12,9 +12,9 @@ export function registerDnsCommands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli dns list --zone <zoneId>
-  $ cfcli dns create --zone <zoneId> -t A -n api -c 1.2.3.4 --proxied
-  $ cfcli dns delete <recordId> --zone <zoneId>
+  $ cff dns list --zone <zoneId>
+  $ cff dns create --zone <zoneId> -t A -n api -c 1.2.3.4 --proxied
+  $ cff dns delete <recordId> --zone <zoneId>
 `
     );
 
@@ -28,11 +28,11 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli dns list -z 023e105f4ecef8ad9ca31a8372d0c353
-  $ cfcli dns list -z 023e105f -t A
-  $ cfcli dns list -z 023e105f -n api.example.com
-  $ cfcli dns list -z 023e105f -o json
-  $ cfcli dns list --local -z mock-zone-001
+  $ cff dns list -z 023e105f4ecef8ad9ca31a8372d0c353
+  $ cff dns list -z 023e105f -t A
+  $ cff dns list -z 023e105f -n api.example.com
+  $ cff dns list -z 023e105f -o json
+  $ cff dns list --local -z mock-zone-001
 `
     )
     .action(async (options) => {
@@ -90,13 +90,13 @@ ${chalk.bold.yellow('Examples:')}
       `
 ${chalk.bold.yellow('Examples:')}
   # Create an A record proxied through Cloudflare:
-  $ cfcli dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied
+  $ cff dns create -z 023e105f -t A -n api.example.com -c 192.0.2.1 --proxied
 
   # Create a CNAME record with custom TTL:
-  $ cfcli dns create -z 023e105f -t CNAME -n blog -c custom.domain.com --ttl 300
+  $ cff dns create -z 023e105f -t CNAME -n blog -c custom.domain.com --ttl 300
 
   # Create a TXT SPF verification record:
-  $ cfcli dns create -z 023e105f -t TXT -n example.com -c "v=spf1 include:_spf.mx.com ~all"
+  $ cff dns create -z 023e105f -t TXT -n example.com -c "v=spf1 include:_spf.mx.com ~all"
 `
     )
     .action(async (options) => {
@@ -139,7 +139,7 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f4ecef8ad9ca31a8372d0c353
+  $ cff dns delete 372e67954025e0ba6aaa6d586b9e0b59 --zone 023e105f4ecef8ad9ca31a8372d0c353
 `
     )
     .action(async (recordId, options) => {

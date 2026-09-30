@@ -32,14 +32,14 @@ ${chalk.bold.yellow('Subcommands:')}
   ${chalk.cyan('auth login [token]')}     Authenticate and save Cloudflare credentials
   ${chalk.cyan('auth verify')}            Verify active API token or exchange authorization code
   ${chalk.cyan('auth status')}            View current authentication source and configuration
-  ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cfcli/config.json)
+  ${chalk.cyan('auth logout')}            Clear stored user credentials (~/.cff/config.json)
 
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli auth login
-  $ cfcli auth login my-cloudflare-api-token
-  $ cfcli auth verify
-  $ cfcli auth status
-  $ cfcli auth logout
+  $ cff auth login
+  $ cff auth login my-cloudflare-api-token
+  $ cff auth verify
+  $ cff auth status
+  $ cff auth logout
 `
     );
 
@@ -68,10 +68,10 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli auth login
-  $ cfcli auth login <api-token>
-  $ cfcli auth login --oauth --client-id <client-id>
-  $ cfcli auth login --local
+  $ cff auth login
+  $ cff auth login <api-token>
+  $ cff auth login --oauth --client-id <client-id>
+  $ cff auth login --local
 `
     )
     .action(async (tokenArg, options) => {
@@ -87,11 +87,11 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli auth verify
-  $ cfcli auth verify --token my-secret-token
-  $ cfcli auth verify --code <authCode>
-  $ cfcli auth verify -o json
-  $ cfcli auth verify --local
+  $ cff auth verify
+  $ cff auth verify --token my-secret-token
+  $ cff auth verify --code <authCode>
+  $ cff auth verify -o json
+  $ cff auth verify --local
 `
     )
     .action(async (options) => {
@@ -118,7 +118,7 @@ ${chalk.bold.yellow('Examples:')}
           });
 
           ConfigManager.loadConfig({ apiToken: tokens.accessToken, localMode: config.localMode });
-          spinner.succeed('Authorization code exchanged and saved to ~/.cfcli/config.json');
+          spinner.succeed('Authorization code exchanged and saved to ~/.cff/config.json');
         } catch (err) {
           spinner.fail('Failed to exchange authorization code');
           Logger.error('Auth code exchange error', err);
@@ -151,7 +151,7 @@ ${chalk.bold.yellow('Examples:')}
       } catch (error) {
         spinner.fail('API Token verification failed');
         Logger.error('Failed to verify token', error);
-        Logger.info(`Tip: Run ${chalk.cyan('cfcli login')} to authenticate or update your token.`);
+        Logger.info(`Tip: Run ${chalk.cyan('cff login')} to authenticate or update your token.`);
         process.exitCode = 1;
       }
     });
@@ -183,17 +183,45 @@ ${chalk.bold.yellow('Examples:')}
           : '***';
         Logger.info(`  • Token Preview: ${masked}`);
       } else {
-        Logger.warn('  • No API token found. Run "cfcli login" to authenticate.');
+        Logger.warn('  • No API token found. Run "cff login" to authenticate.');
       }
     });
 
   auth
+    .command('permissions')
+    .alias('access')
+    .alias('inspect')
+    .description('Audit all access permissions, resource scopes, and capabilities of the active API token')
+    .addHelpText(
+      'after',
+      `
+${chalk.bold.yellow('Examples:')}
+  $ cff auth permissions
+  $ cff auth permissions --output json
+  $ cff auth permissions --zone <zoneId> --account <accountId>
+  $ cff auth permissions --local
+`
+    )
+    .action(async () => {
+      await handleAuthPermissions();
+    });
+
+  program
+    .command('permissions')
+    .alias('token:permissions')
+    .alias('token:access')
+    .description('Audit all access permissions, resource scopes, and capabilities of the active API token')
+    .action(async () => {
+      await handleAuthPermissions();
+    });
+
+  auth
     .command('logout')
-    .description('Log out and delete stored credentials from ~/.cfcli/config.json')
+    .description('Log out and delete stored credentials from ~/.cff/config.json')
     .action(() => {
       try {
         UserConfigManager.clearUserConfig();
-        Logger.success('Successfully logged out. Stored credentials removed from ~/.cfcli/config.json');
+        Logger.success('Successfully logged out. Stored credentials removed from ~/.cff/config.json');
       } catch (err) {
         Logger.error('Failed to logout', err);
         process.exitCode = 1;
@@ -208,9 +236,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli user:display
-  $ cfcli user:display --output json
-  $ cfcli user:display --local
+  $ cff user:display
+  $ cff user:display --output json
+  $ cff user:display --local
 `
     )
     .action(async () => {
@@ -286,7 +314,7 @@ async function handleAuthLogin(
         `Pass your Client ID via ${chalk.cyan('--client-id <id>')} or set ${chalk.cyan('CLOUDFLARE_OAUTH_CLIENT_ID=<id>')}.`
       );
       Logger.info(
-        `To authenticate without a custom OAuth app, simply run ${chalk.green('cfcli login')}.`
+        `To authenticate without a custom OAuth app, simply run ${chalk.green('cff login')}.`
       );
       return;
     }
@@ -300,7 +328,7 @@ async function handleAuthLogin(
     return;
   }
 
-  // If token is provided as an argument (e.g. cfcli login <token>)
+  // If token is provided as an argument (e.g. cff login <token>)
   let token = tokenArg;
 
   if (!token) {
@@ -352,7 +380,7 @@ async function handleAuthLogin(
       // Ignored if account:read permission is not granted
     }
 
-    // Save to user configuration (~/.cfcli/config.json)
+    // Save to user configuration (~/.cff/config.json)
     UserConfigManager.saveUserConfig({
       apiToken: token,
       tokenType: 'Bearer',
@@ -371,7 +399,7 @@ async function handleAuthLogin(
       console.log(`  ${chalk.dim('•')} Default Account ID: ${chalk.cyan(accountId)}`);
     }
     console.log(`  ${chalk.dim('•')} Config saved to: ${chalk.dim(UserConfigManager.getConfigPath())}\n`);
-    console.log(`Try running: ${chalk.cyan('cfcli zones list')} or ${chalk.cyan('cfcli user:display')}\n`);
+    console.log(`Try running: ${chalk.cyan('cff zones list')} or ${chalk.cyan('cff user:display')}\n`);
   } catch (err) {
     spinner.fail('Token verification failed');
     Logger.error('Invalid token or network error', err);
@@ -428,7 +456,7 @@ async function runOAuthPkceFlow(options: {
       });
 
       ConfigManager.loadConfig({ apiToken: tokens.accessToken });
-      spinner.succeed('Authentication successful! Token saved to ~/.cfcli/config.json');
+      spinner.succeed('Authentication successful! Token saved to ~/.cff/config.json');
     } catch (err) {
       spinner.fail('Token exchange failed');
       Logger.error('Error exchanging authorization code', err);
@@ -478,7 +506,7 @@ async function runOAuthPkceFlow(options: {
     });
 
     ConfigManager.loadConfig({ apiToken: tokens.accessToken });
-    spinner.succeed('Authentication successful! Credentials stored in ~/.cfcli/config.json');
+    spinner.succeed('Authentication successful! Credentials stored in ~/.cff/config.json');
 
     const verifySpinner = Logger.spinner('Verifying token permissions...');
     try {
@@ -491,7 +519,7 @@ async function runOAuthPkceFlow(options: {
   } catch (err) {
     spinner.fail('OAuth authorization failed');
     Logger.error('Authentication error', err);
-    Logger.info(`Tip: If running on a headless or remote server, use ${chalk.cyan('cfcli login --oauth --manual')}`);
+    Logger.info(`Tip: If running on a headless or remote server, use ${chalk.cyan('cff login --oauth --manual')}`);
     process.exitCode = 1;
   }
 }
@@ -503,10 +531,283 @@ function formatTokenSource(source?: string): string {
     case 'env':
       return chalk.green('Environment Variable ($CLOUDFLARE_API_TOKEN)');
     case 'user-config':
-      return chalk.cyan('Stored User Config (~/.cfcli/config.json)');
+      return chalk.cyan('Stored User Config (~/.cff/config.json)');
     case 'mock':
       return chalk.magenta('Offline Simulation Mode (--local)');
     default:
       return chalk.red('None (Unauthenticated)');
+  }
+}
+
+interface ServiceAccessResult {
+  service: string;
+  category: string;
+  status: 'Granted' | 'Denied' | 'Unknown';
+  summary: string;
+  details?: Record<string, any>;
+}
+
+async function handleAuthPermissions() {
+  const config = ConfigManager.getConfig();
+  const token = config.apiToken;
+
+  if (!token && !config.localMode) {
+    Logger.error('Missing API Token. Run "cff login" or provide --token.');
+    process.exitCode = 1;
+    return;
+  }
+
+  const spinner = Logger.spinner('Auditing API token access and permission scopes...');
+  try {
+    const client = getCloudflareClient();
+
+    // 1. Verify token
+    let verifyRes: any;
+    try {
+      verifyRes = await client.user.tokens.verify();
+    } catch (err) {
+      spinner.fail('Token verification failed');
+      Logger.error('Invalid token or connection error', err);
+      process.exitCode = 1;
+      return;
+    }
+
+    const tokenId = verifyRes.id;
+    let tokenDetails: any = null;
+
+    // 2. Attempt to fetch detailed token policies if permitted
+    if (tokenId && client.user?.tokens?.get) {
+      try {
+        tokenDetails = await client.user.tokens.get(tokenId);
+      } catch {
+        // Token might not have user:tokens:read permission, which is expected for scoped tokens
+      }
+    }
+
+    // 3. Probe service permissions concurrently with safe read operations
+    const accessMatrix: ServiceAccessResult[] = [];
+
+    // Probe 1: User Profile
+    try {
+      const user = await client.user.get();
+      const userName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.id || 'User';
+      accessMatrix.push({
+        service: 'User Profile',
+        category: 'Identity',
+        status: 'Granted',
+        summary: `Read access granted (${userName})`,
+        details: { id: user.id, email: (user as any).email, name: userName },
+      });
+    } catch {
+      accessMatrix.push({
+        service: 'User Profile',
+        category: 'Identity',
+        status: 'Denied',
+        summary: 'No user:read permission',
+      });
+    }
+
+    // Probe 2: Accounts
+    let accessibleAccountIds: string[] = [];
+    try {
+      const accountsRes = await client.accounts.list();
+      const accounts = accountsRes.result || [];
+      accessibleAccountIds = accounts.map((a: any) => a.id).filter(Boolean);
+      accessMatrix.push({
+        service: 'Accounts',
+        category: 'Identity & Access',
+        status: 'Granted',
+        summary: `${accounts.length} account(s) accessible`,
+        details: { count: accounts.length, accounts: accounts.map((a: any) => ({ id: a.id, name: a.name })) },
+      });
+    } catch {
+      accessMatrix.push({
+        service: 'Accounts',
+        category: 'Identity & Access',
+        status: 'Denied',
+        summary: 'No account:read permission',
+      });
+    }
+
+    // Probe 3: Zones
+    let accessibleZoneIds: string[] = [];
+    try {
+      const zonesRes = await client.zones.list();
+      const zones = zonesRes.result || [];
+      accessibleZoneIds = zones.map((z: any) => z.id).filter(Boolean);
+      accessMatrix.push({
+        service: 'Zones & Domains',
+        category: 'Network & DNS',
+        status: 'Granted',
+        summary: `${zones.length} zone(s) accessible`,
+        details: { count: zones.length, zones: zones.map((z: any) => ({ id: z.id, name: z.name })) },
+      });
+    } catch {
+      accessMatrix.push({
+        service: 'Zones & Domains',
+        category: 'Network & DNS',
+        status: 'Denied',
+        summary: 'No zone:read permission',
+      });
+    }
+
+    // Probe 4: DNS Records
+    const targetZoneId = config.zoneId || accessibleZoneIds[0];
+    if (targetZoneId) {
+      try {
+        const dnsRes = await client.dns.records.list({ zone_id: targetZoneId });
+        accessMatrix.push({
+          service: 'DNS Records',
+          category: 'Network & DNS',
+          status: 'Granted',
+          summary: `Read access granted on zone ${targetZoneId} (${dnsRes.result?.length ?? 0} records)`,
+        });
+      } catch {
+        accessMatrix.push({
+          service: 'DNS Records',
+          category: 'Network & DNS',
+          status: 'Denied',
+          summary: `No dns_records:read access on zone ${targetZoneId}`,
+        });
+      }
+    } else {
+      accessMatrix.push({
+        service: 'DNS Records',
+        category: 'Network & DNS',
+        status: 'Unknown',
+        summary: 'Specify --zone <zoneId> to probe specific zone DNS records',
+      });
+    }
+
+    // Probe 5: Cloudflare Workers
+    const targetAccountId = config.accountId || accessibleAccountIds[0];
+    if (targetAccountId) {
+      try {
+        const workersRes = await client.workers.scripts.list({ account_id: targetAccountId });
+        accessMatrix.push({
+          service: 'Workers Scripts',
+          category: 'Serverless',
+          status: 'Granted',
+          summary: `Read access granted on account ${targetAccountId} (${workersRes.result?.length ?? 0} workers)`,
+        });
+      } catch {
+        accessMatrix.push({
+          service: 'Workers Scripts',
+          category: 'Serverless',
+          status: 'Denied',
+          summary: `No workers:read access on account ${targetAccountId}`,
+        });
+      }
+
+      // Probe 6: Workers KV
+      try {
+        const kvRes = await client.kv.namespaces.list({ account_id: targetAccountId });
+        accessMatrix.push({
+          service: 'Workers KV',
+          category: 'Storage',
+          status: 'Granted',
+          summary: `Read access granted on account ${targetAccountId} (${kvRes.result?.length ?? 0} namespaces)`,
+        });
+      } catch {
+        accessMatrix.push({
+          service: 'Workers KV',
+          category: 'Storage',
+          status: 'Denied',
+          summary: `No kv:read access on account ${targetAccountId}`,
+        });
+      }
+
+      // Probe 7: R2 Object Storage
+      try {
+        const r2Res = await client.r2.buckets.list({ account_id: targetAccountId });
+        accessMatrix.push({
+          service: 'R2 Object Storage',
+          category: 'Storage',
+          status: 'Granted',
+          summary: `Read access granted on account ${targetAccountId} (${r2Res.buckets?.length ?? 0} buckets)`,
+        });
+      } catch {
+        accessMatrix.push({
+          service: 'R2 Object Storage',
+          category: 'Storage',
+          status: 'Denied',
+          summary: `No r2:read access on account ${targetAccountId}`,
+        });
+      }
+    } else {
+      accessMatrix.push({
+        service: 'Workers & Storage',
+        category: 'Serverless / Storage',
+        status: 'Unknown',
+        summary: 'Specify --account <accountId> to probe Workers, KV, and R2 permissions',
+      });
+    }
+
+    spinner.succeed('Token access audit completed successfully!');
+
+    // Output formatting
+    if (config.outputFormat === 'json') {
+      Logger.json({
+        token: {
+          id: tokenId,
+          status: verifyRes.status,
+          source: config.tokenSource,
+          not_before: verifyRes.not_before,
+          expires_on: verifyRes.expires_on,
+        },
+        policies: tokenDetails?.policies || null,
+        accessMatrix,
+      });
+      return;
+    }
+
+    // Render Formatted Terminal Display
+    console.log(`\n${chalk.bold.cyan('🛡️  Cloudflare API Token Permissions & Access Audit')}`);
+    console.log(chalk.dim('─'.repeat(65)));
+    console.log(`  ${chalk.bold('Token ID:')}     ${chalk.cyan(tokenId || 'N/A')}`);
+    console.log(`  ${chalk.bold('Status:')}       ${verifyRes.status === 'active' ? chalk.green('✔ active') : chalk.red(verifyRes.status)}`);
+    console.log(`  ${chalk.bold('Source:')}       ${formatTokenSource(config.tokenSource)}`);
+    if (verifyRes.expires_on) {
+      console.log(`  ${chalk.bold('Expires On:')}   ${chalk.yellow(verifyRes.expires_on)}`);
+    }
+    console.log(chalk.dim('─'.repeat(65)));
+
+    if (tokenDetails?.policies && tokenDetails.policies.length > 0) {
+      console.log(`\n${chalk.bold.yellow('📜 Explicit Token Permission Policies:')}`);
+      tokenDetails.policies.forEach((p: any, idx: number) => {
+        const perms = (p.permission_groups || []).map((g: any) => g.name || g.id).join(', ');
+        const resources = Object.entries(p.resources || {})
+          .map(([k, v]) => `${k} => ${v}`)
+          .join('; ') || 'All Resources';
+        console.log(`  ${chalk.cyan(`Policy ${idx + 1}`)} [${p.effect.toUpperCase()}]: ${chalk.white(perms || 'Custom')}`);
+        console.log(`    ${chalk.dim('Scope:')} ${chalk.dim(resources)}`);
+      });
+    }
+
+    console.log(`\n${chalk.bold.yellow('🔍 Probed Service Access Matrix:')}`);
+    const tableData = accessMatrix.map((item) => {
+      let statusFormatted: string = item.status;
+      if (item.status === 'Granted') {
+        statusFormatted = chalk.green('✔ Granted');
+      } else if (item.status === 'Denied') {
+        statusFormatted = chalk.red('✖ Denied');
+      } else {
+        statusFormatted = chalk.gray('? Pending/N/A');
+      }
+      return {
+        Service: item.service,
+        Category: item.category,
+        Access: statusFormatted,
+        'Details / Summary': item.summary,
+      };
+    });
+
+    Logger.table(tableData);
+    console.log(chalk.dim('Tip: Use --zone <zoneId> or --account <accountId> to probe specific resource scopes.\n'));
+
+  } catch (error) {
+    spinner.fail('Failed to audit token permissions');
+    Logger.error('Error auditing token permissions', error);
+    process.exitCode = 1;
   }
 }

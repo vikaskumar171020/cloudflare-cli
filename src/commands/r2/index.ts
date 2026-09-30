@@ -12,8 +12,8 @@ export function registerR2Commands(program: Command) {
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli r2 list --local -a mock-acc-001
+  $ cff r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff r2 list --local -a mock-acc-001
 `
     );
 
@@ -25,9 +25,9 @@ ${chalk.bold.yellow('Examples:')}
       'after',
       `
 ${chalk.bold.yellow('Examples:')}
-  $ cfcli r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
-  $ cfcli r2 list -a 1a2b3c4d -o json
-  $ cfcli r2 list --local -a mock-acc-001
+  $ cff r2 list --account 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d
+  $ cff r2 list -a 1a2b3c4d -o json
+  $ cff r2 list --local -a mock-acc-001
 `
     )
     .action(async (options) => {

@@ -72,7 +72,7 @@ export class ConfigManager {
     }
     if (!config.apiToken) {
       throw new Error(
-        'Missing Cloudflare API Token. Run "cfcli auth login" to authenticate with OAuth authorization code, provide --token, or set CLOUDFLARE_API_TOKEN in your environment.'
+        'Missing Cloudflare API Token. Run "cff auth login" to authenticate with OAuth authorization code, provide --token, or set CLOUDFLARE_API_TOKEN in your environment.'
       );
     }
     return config.apiToken;
